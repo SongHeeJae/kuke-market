@@ -6,9 +6,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Entity
 @Getter
@@ -30,22 +30,18 @@ public class Member {
     @Column(nullable = false, unique = true, length = 20)
     private String nickname;
 
-    @OneToMany(mappedBy = "member")
-    private List<MemberRole> roles;
+    @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
+    private Set<MemberRole> roles;
 
-    public Member(String email, String password, String username, String nickname, List<RoleType> roleTypes) {
+    public Member(String email, String password, String username, String nickname, List<Role> roles) {
         this.email = email;
         this.password = password;
         this.username = username;
         this.nickname = nickname;
-        this.roles = roleTypes.stream().map(r -> new MemberRole(this, new Role(r))).collect(toList());
+        this.roles = roles.stream().map(r -> new MemberRole(this, r)).collect(toSet());
     }
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
-    }
-
-    public boolean isMatch(String password) {
-        return Objects.equals(this.password, password);
     }
 }

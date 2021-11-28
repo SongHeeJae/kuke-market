@@ -4,11 +4,10 @@ import kukekyakya.kukemarket.dto.sign.SignInRequest;
 import kukekyakya.kukemarket.dto.sign.SignInResponse;
 import kukekyakya.kukemarket.dto.sign.SignUpRequest;
 import kukekyakya.kukemarket.entity.member.Member;
-import kukekyakya.kukemarket.exception.LoginFailureException;
-import kukekyakya.kukemarket.exception.MemberEmailAlreadyExistsException;
-import kukekyakya.kukemarket.exception.MemberNicknameAlreadyExistsException;
-import kukekyakya.kukemarket.exception.MemberNotFoundException;
+import kukekyakya.kukemarket.entity.member.RoleType;
+import kukekyakya.kukemarket.exception.*;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
+import kukekyakya.kukemarket.repository.role.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,13 +19,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class SignService {
 
     private final MemberRepository memberRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
 
     @Transactional
     public void signUp(SignUpRequest req) {
         validateSignUpInfo(req);
-        memberRepository.save(SignUpRequest.toEntity(req, passwordEncoder));
+        memberRepository.save(SignUpRequest.toEntity(req,
+                roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new),
+                passwordEncoder));
     }
 
     public SignInResponse signIn(SignInRequest req) {

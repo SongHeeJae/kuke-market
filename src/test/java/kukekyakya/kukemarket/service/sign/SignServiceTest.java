@@ -4,11 +4,11 @@ import kukekyakya.kukemarket.dto.sign.SignInRequest;
 import kukekyakya.kukemarket.dto.sign.SignInResponse;
 import kukekyakya.kukemarket.dto.sign.SignUpRequest;
 import kukekyakya.kukemarket.entity.member.Member;
-import kukekyakya.kukemarket.exception.LoginFailureException;
-import kukekyakya.kukemarket.exception.MemberEmailAlreadyExistsException;
-import kukekyakya.kukemarket.exception.MemberNicknameAlreadyExistsException;
-import kukekyakya.kukemarket.exception.MemberNotFoundException;
+import kukekyakya.kukemarket.entity.member.Role;
+import kukekyakya.kukemarket.entity.member.RoleType;
+import kukekyakya.kukemarket.exception.*;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
+import kukekyakya.kukemarket.repository.role.RoleRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,6 +31,7 @@ public class SignServiceTest {
 
     @InjectMocks SignService signService;
     @Mock MemberRepository memberRepository;
+    @Mock RoleRepository roleRepository;
     @Mock PasswordEncoder passwordEncoder;
     @Mock TokenService tokenService;
 
@@ -38,6 +39,7 @@ public class SignServiceTest {
     void signUpTest() {
         // given
         SignUpRequest req = createSignUpRequest();
+        given(roleRepository.findByRoleType(RoleType.ROLE_NORMAL)).willReturn(Optional.of(new Role(RoleType.ROLE_NORMAL)));
 
         // when
         signService.signUp(req);
@@ -50,8 +52,7 @@ public class SignServiceTest {
     @Test
     void validateSignUpByDuplicateEmailTest() {
         // given
-        given(memberRepository.findByEmail(anyString()))
-                .willReturn(Optional.of(createMember()));
+        given(memberRepository.findByEmail(anyString())).willReturn(Optional.of(createMember()));
 
         // when, then
         assertThatThrownBy(() -> signService.signUp(createSignUpRequest()))
@@ -61,12 +62,21 @@ public class SignServiceTest {
     @Test
     void validateSignUpByDuplicateNicknameTest() {
         // given
-        given(memberRepository.findByNickname(anyString()))
-                .willReturn(Optional.ofNullable(createMember()));
+        given(memberRepository.findByNickname(anyString())).willReturn(Optional.ofNullable(createMember()));
 
         // when, then
         assertThatThrownBy(() -> signService.signUp(createSignUpRequest()))
                 .isInstanceOf(MemberNicknameAlreadyExistsException.class);
+    }
+
+    @Test
+    void signUpRoleNotFoundTest() {
+        // given
+        given(roleRepository.findByRoleType(RoleType.ROLE_NORMAL)).willReturn(Optional.empty());
+
+        // when, then
+        assertThatThrownBy(() -> signService.signUp(createSignUpRequest()))
+                .isInstanceOf(RoleNotFoundException.class);
     }
 
     @Test

@@ -10,4 +10,5 @@ spring:
     show-sql: true
 
   profiles:
+    active: local
     include: secret
