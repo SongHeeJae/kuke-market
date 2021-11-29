@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,7 +37,7 @@ class SignControllerTest {
     @Test
     void signUpTest() throws Exception {
         // given
-        SignUpRequest req = new SignUpRequest("email", "password", "username", "nickname");
+        SignUpRequest req = new SignUpRequest("email@email.com", "123456a!", "username", "nickname");
 
         // when, then
         mockMvc.perform(
@@ -51,7 +52,7 @@ class SignControllerTest {
     @Test
     void signInTest() throws Exception {
         // given
-        SignInRequest req = new SignInRequest("email", "password");
+        SignInRequest req = new SignInRequest("email@email.com", "123456a!");
         given(signService.signIn(req)).willReturn(new SignInResponse("access", "refresh"));
 
         // when, then
@@ -69,7 +70,7 @@ class SignControllerTest {
     @Test
     void ignoreNullValueInJsonResponseTest() throws Exception {
         // given
-        SignUpRequest req = new SignUpRequest("email", "password", "username", "nickname");
+        SignUpRequest req = new SignUpRequest("email@email.com", "123456a!", "username", "nickname");
 
         // when, then
         mockMvc.perform(
@@ -78,5 +79,6 @@ class SignControllerTest {
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.result").doesNotExist());
+
     }
 }

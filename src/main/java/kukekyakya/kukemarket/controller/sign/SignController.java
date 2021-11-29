@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 import static kukekyakya.kukemarket.controller.response.Response.success;
 
 @RestController
@@ -20,14 +22,14 @@ public class SignController {
 
     @PostMapping("/api/sign-up")
     @ResponseStatus(HttpStatus.CREATED)
-    public Response signUp(@RequestBody SignUpRequest req) {
+    public Response signUp(@Valid @RequestBody SignUpRequest req) {
         signService.signUp(req);
         return success();
     }
 
     @PostMapping("/api/sign-in")
     @ResponseStatus(HttpStatus.OK)
-    public Response signIn(@RequestBody SignInRequest req) {
+    public Response signIn(@Valid @RequestBody SignInRequest req) {
         return success(signService.signIn(req));
     }
 }
