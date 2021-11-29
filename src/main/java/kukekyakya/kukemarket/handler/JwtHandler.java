@@ -43,6 +43,4 @@ public class JwtHandler {
         return token.substring(type.length());
     }
 
-
-
 }

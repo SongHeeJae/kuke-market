@@ -8,10 +8,11 @@ import static org.assertj.core.api.Assertions.*;
 
 public class PasswordEncoderTest {
 
+    PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
     @Test
     void encodeWithBcryptTest() {
         // given
-        PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         String password = "password";
 
         // when
@@ -19,6 +20,18 @@ public class PasswordEncoderTest {
 
         // then
         assertThat(encodedPassword).contains("bcrypt");
-        assertThat(passwordEncoder.matches(password, encodedPassword)).isTrue();
+    }
+
+    @Test
+    void matchTest() {
+        // given
+        String password = "password";
+        String encodedPassword = passwordEncoder.encode(password);
+
+        // when
+        boolean isMatch = passwordEncoder.matches(password, encodedPassword);
+
+        // then
+        assertThat(isMatch).isTrue();
     }
 }

@@ -6,7 +6,10 @@ import kukekyakya.kukemarket.dto.sign.SignUpRequest;
 import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.entity.member.Role;
 import kukekyakya.kukemarket.entity.member.RoleType;
-import kukekyakya.kukemarket.exception.*;
+import kukekyakya.kukemarket.exception.LoginFailureException;
+import kukekyakya.kukemarket.exception.MemberEmailAlreadyExistsException;
+import kukekyakya.kukemarket.exception.MemberNicknameAlreadyExistsException;
+import kukekyakya.kukemarket.exception.RoleNotFoundException;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
 import kukekyakya.kukemarket.repository.role.RoleRepository;
 import org.junit.jupiter.api.Test;
@@ -102,7 +105,7 @@ public class SignServiceTest {
 
         // when, then
         assertThatThrownBy(() -> signService.signIn(new SignInRequest("email", "password")))
-                .isInstanceOf(MemberNotFoundException.class);
+                .isInstanceOf(LoginFailureException.class);
     }
 
     @Test
