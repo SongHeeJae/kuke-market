@@ -25,8 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class MemberRepositoryTest {
 
     @Autowired MemberRepository memberRepository;
-    @Autowired
-    RoleRepository roleRepository;
+    @Autowired RoleRepository roleRepository;
     @PersistenceContext EntityManager em;
 
     @Test
@@ -36,8 +35,7 @@ class MemberRepositoryTest {
 
         // when
         memberRepository.save(member);
-        em.flush();
-        em.clear();
+        clear();
 
         // then
         Member foundMember = memberRepository.findById(member.getId()).orElseThrow(MemberNotFoundException::new);
@@ -45,15 +43,32 @@ class MemberRepositoryTest {
     }
 
     @Test
+    void memberDateTest() {
+        // given
+        Member member = createMember();
+
+        // when
+        memberRepository.save(member);
+        clear();
+
+        // then
+        Member foundMember = memberRepository.findById(member.getId()).orElseThrow(MemberNotFoundException::new);
+        assertThat(foundMember.getCreatedAt()).isNotNull();
+        assertThat(foundMember.getModifiedAt()).isNotNull();
+        assertThat(foundMember.getCreatedAt()).isEqualTo(foundMember.getModifiedAt());
+    }
+
+    @Test
     void updateTest() {
         // given
         String updatedNickname = "updated";
         Member member = memberRepository.save(createMember());
+        clear();
 
         // when
-        member.updateNickname(updatedNickname);
-        em.flush();
-        em.clear();
+        Member foundMember = memberRepository.findById(member.getId()).orElseThrow(MemberNotFoundException::new);
+        foundMember.updateNickname(updatedNickname);
+        clear();
 
         // then
         Member updatedMember = memberRepository.findById(member.getId()).orElseThrow(MemberNotFoundException::new);
@@ -64,11 +79,11 @@ class MemberRepositoryTest {
     void deleteTest() {
         // given
         Member member = memberRepository.save(createMember());
-        em.flush();
-        em.clear();
+        clear();
 
         // when
         memberRepository.delete(member);
+        clear();
 
         // then
         assertThatThrownBy(() -> memberRepository.findById(member.getId()).orElseThrow(MemberNotFoundException::new))
@@ -79,8 +94,7 @@ class MemberRepositoryTest {
     void findByEmailTest() {
         // given
         Member member = memberRepository.save(createMember());
-        em.flush();
-        em.clear();
+        clear();
 
         // when
         Member foundMember = memberRepository.findByEmail(member.getEmail()).orElseThrow(MemberNotFoundException::new);
@@ -93,8 +107,7 @@ class MemberRepositoryTest {
     void findByNicknameTest() {
         // given
         Member member = memberRepository.save(createMember());
-        em.flush();
-        em.clear();
+        clear();
 
         // when
         Member foundMember = memberRepository.findByNickname(member.getNickname()).orElseThrow(MemberNotFoundException::new);
@@ -107,8 +120,7 @@ class MemberRepositoryTest {
     void uniqueEmailTest() {
         // given
         Member member = memberRepository.save(createMember("email1", "password1", "username1", "nickname1"));
-        em.flush();
-        em.clear();
+        clear();
 
         // when, then
         assertThatThrownBy(() -> memberRepository.save(createMember(member.getEmail(), "password2", "username2", "nickname2")))
@@ -119,12 +131,33 @@ class MemberRepositoryTest {
     void uniqueNicknameTest() {
         // given
         Member member = memberRepository.save(createMember("email1", "password1", "username1", "nickname1"));
-        em.flush();
-        em.clear();
+        clear();
 
         // when, then
         assertThatThrownBy(() -> memberRepository.save(createMember("email2", "password2", "username2", member.getNickname())))
                 .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void existsByEmailTest() {
+        // given
+        Member member = memberRepository.save(createMember());
+        clear();
+
+        // when, then
+        assertThat(memberRepository.existsByEmail(member.getEmail())).isTrue();
+        assertThat(memberRepository.existsByEmail(member.getEmail() + "test")).isFalse();
+    }
+
+    @Test
+    void existsByNicknameTest() {
+        // given
+        Member member = memberRepository.save(createMember());
+        clear();
+
+        // when, then
+        assertThat(memberRepository.existsByNickname(member.getNickname())).isTrue();
+        assertThat(memberRepository.existsByNickname(member.getNickname() + "test")).isFalse();
     }
 
     @Test
@@ -133,17 +166,22 @@ class MemberRepositoryTest {
         List<RoleType> roleTypes = List.of(RoleType.ROLE_NORMAL, RoleType.ROLE_SPECIAL_BUYER, RoleType.ROLE_ADMIN);
         List<Role> roles = roleTypes.stream().map(roleType -> new Role(roleType)).collect(Collectors.toList());
         roleRepository.saveAll(roles);
+        clear();
 
         Member member = memberRepository.save(createMemberWithRoles(roleRepository.findAll()));
-        em.flush();
-        em.clear();
+        clear();
 
         // when
         Member foundMember = memberRepository.findById(member.getId()).orElseThrow(MemberNotFoundException::new);
+        Set<MemberRole> memberRoles = foundMember.getRoles();
 
         // then
-        Set<MemberRole> memberRoles = foundMember.getRoles();
-        assertThat(memberRoles.size()).isEqualTo(roleTypes.size());
+        assertThat(memberRoles.size()).isEqualTo(roles.size());
+    }
+
+    private void clear() {
+        em.flush();
+        em.clear();
     }
 
     private Member createMemberWithRoles(List<Role> roles) {

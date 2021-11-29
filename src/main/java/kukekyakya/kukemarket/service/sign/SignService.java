@@ -41,12 +41,10 @@ public class SignService {
     }
 
     private void validateSignUpInfo(SignUpRequest req) {
-        memberRepository.findByEmail(req.getEmail()).ifPresent(m -> {
-            throw new MemberEmailAlreadyExistsException(m.getEmail());
-        });
-        memberRepository.findByNickname(req.getNickname()).ifPresent(m -> {
-            throw new MemberNicknameAlreadyExistsException(m.getNickname());
-        });
+        if(memberRepository.existsByEmail(req.getEmail()))
+            throw new MemberEmailAlreadyExistsException(req.getEmail());
+        if(memberRepository.existsByNickname(req.getNickname()))
+            throw new MemberNicknameAlreadyExistsException(req.getNickname());
     }
 
     private void validatePassword(SignInRequest req, Member member) {

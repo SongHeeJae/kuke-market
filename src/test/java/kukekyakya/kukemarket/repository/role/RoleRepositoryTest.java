@@ -6,6 +6,7 @@ import kukekyakya.kukemarket.exception.RoleNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -15,8 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 class RoleRepositoryTest {
-    @Autowired
-    RoleRepository roleRepository;
+    @Autowired RoleRepository roleRepository;
     @PersistenceContext EntityManager em;
 
     @Test
@@ -26,8 +26,7 @@ class RoleRepositoryTest {
 
         // when
         roleRepository.save(role);
-        em.flush();
-        em.clear();
+        clear();
 
         // then
         Role foundRole = roleRepository.findById(role.getId()).orElseThrow(RoleNotFoundException::new);
@@ -38,8 +37,7 @@ class RoleRepositoryTest {
     void deleteTest() {
         // given
         Role role = roleRepository.save(createRole());
-        em.flush();
-        em.clear();
+        clear();
 
         // when
         roleRepository.delete(role);
@@ -49,7 +47,24 @@ class RoleRepositoryTest {
                 .isInstanceOf(RoleNotFoundException.class);
     }
 
+    @Test
+    void uniqueRoleTypeTest() {
+        // given
+        roleRepository.save(createRole());
+        clear();
+
+        // when, then
+        assertThatThrownBy(() -> roleRepository.save(createRole()))
+                .isInstanceOf(DataIntegrityViolationException.class);
+
+    }
+
     private Role createRole() {
         return new Role(RoleType.ROLE_NORMAL);
+    }
+
+    private void clear() {
+        em.flush();
+        em.clear();
     }
 }

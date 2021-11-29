@@ -52,7 +52,7 @@ public class SignServiceTest {
     @Test
     void validateSignUpByDuplicateEmailTest() {
         // given
-        given(memberRepository.findByEmail(anyString())).willReturn(Optional.of(createMember()));
+        given(memberRepository.existsByEmail(anyString())).willReturn(true);
 
         // when, then
         assertThatThrownBy(() -> signService.signUp(createSignUpRequest()))
@@ -62,7 +62,7 @@ public class SignServiceTest {
     @Test
     void validateSignUpByDuplicateNicknameTest() {
         // given
-        given(memberRepository.findByNickname(anyString())).willReturn(Optional.ofNullable(createMember()));
+        given(memberRepository.existsByNickname(anyString())).willReturn(true);
 
         // when, then
         assertThatThrownBy(() -> signService.signUp(createSignUpRequest()))
