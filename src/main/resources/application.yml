@@ -7,3 +7,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+    show-sql: true
+
+  profiles:
+    active: local
+    include: secret
