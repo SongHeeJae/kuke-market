@@ -1,4 +1,4 @@
-package kukekyakya.kukemarket.controller.response;
+package kukekyakya.kukemarket.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

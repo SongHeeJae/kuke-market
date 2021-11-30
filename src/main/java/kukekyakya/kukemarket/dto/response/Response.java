@@ -1,4 +1,4 @@
-package kukekyakya.kukemarket.controller.response;
+package kukekyakya.kukemarket.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
@@ -18,18 +18,10 @@ public class Response {
     }
 
     public static <T> Response success(T data) {
-        return new Response(
-                true,
-                0,
-                new Success<>(data)
-        );
+        return new Response(true, 0, new Success<>(data));
     }
 
     public static Response failure(int code, String msg) {
-        return new Response(
-                false,
-                code,
-                new Failure(msg)
-        );
+        return new Response(false, code, new Failure(msg));
     }
 }
