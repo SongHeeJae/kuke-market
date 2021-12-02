@@ -17,7 +17,20 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Response exception(Exception e) {
         log.info("e = {}", e.getMessage());
+        e.printStackTrace();
         return Response.failure(-1000, "오류가 발생하였습니다.");
+    }
+
+    @ExceptionHandler(AuthenticationEntryPointException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public Response authenticationEntryPoint() {
+        return Response.failure(-1001, "인증되지 않은 사용자입니다.");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Response accessDeniedException() {
+        return Response.failure(-1002, "접근이 거부되었습니다.");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
