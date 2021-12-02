@@ -1,4 +1,4 @@
-package kukekyakya.kukemarket;
+package kukekyakya.kukemarket.init;
 
 import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.entity.member.Role;
@@ -6,32 +6,31 @@ import kukekyakya.kukemarket.entity.member.RoleType;
 import kukekyakya.kukemarket.exception.RoleNotFoundException;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
 import kukekyakya.kukemarket.repository.role.RoleRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
-@Profile("local")
-public class InitDB {
-    private final RoleRepository roleRepository;
-    private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
+public class TestInitDB {
+    @Autowired RoleRepository roleRepository;
+    @Autowired MemberRepository memberRepository;
+    @Autowired PasswordEncoder passwordEncoder;
 
-    @EventListener(ApplicationReadyEvent.class)
+    private String adminEmail = "admin@admin.com";
+    private String member1Email = "member1@member.com";
+    private String member2Email = "member2@member.com";
+    private String password = "123456a!";
+
     @Transactional
     public void initDB() {
-        log.info("initialize database");
-
         initRole();
         initTestAdmin();
         initTestMember();
@@ -45,7 +44,7 @@ public class InitDB {
 
     private void initTestAdmin() {
         memberRepository.save(
-                new Member("admin@admin.com", passwordEncoder.encode("123456a!"), "admin", "admin",
+                new Member(adminEmail, passwordEncoder.encode(password), "admin", "admin",
                         List.of(roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new),
                                 roleRepository.findByRoleType(RoleType.ROLE_ADMIN).orElseThrow(RoleNotFoundException::new)))
         );
@@ -54,11 +53,26 @@ public class InitDB {
     private void initTestMember() {
         memberRepository.saveAll(
                 List.of(
-                        new Member("member1@member.com", passwordEncoder.encode("123456a!"), "member1", "member1",
+                        new Member(member1Email, passwordEncoder.encode(password), "member1", "member1",
                                 List.of(roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new))),
-                        new Member("member2@member.com", passwordEncoder.encode("123456a!"), "member2", "member2",
+                        new Member(member2Email, passwordEncoder.encode(password), "member2", "member2",
                                 List.of(roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new))))
         );
     }
 
+    public String getAdminEmail() {
+        return adminEmail;
+    }
+
+    public String getMember1Email() {
+        return member1Email;
+    }
+
+    public String getMember2Email() {
+        return member2Email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
 }
