@@ -1,14 +1,11 @@
 package kukekyakya.kukemarket.service.sign;
 
-import kukekyakya.kukemarket.dto.sign.SignInRequest;
+import kukekyakya.kukemarket.dto.sign.RefreshTokenResponse;
 import kukekyakya.kukemarket.dto.sign.SignInResponse;
 import kukekyakya.kukemarket.dto.sign.SignUpRequest;
 import kukekyakya.kukemarket.entity.member.Role;
 import kukekyakya.kukemarket.entity.member.RoleType;
-import kukekyakya.kukemarket.exception.LoginFailureException;
-import kukekyakya.kukemarket.exception.MemberEmailAlreadyExistsException;
-import kukekyakya.kukemarket.exception.MemberNicknameAlreadyExistsException;
-import kukekyakya.kukemarket.exception.RoleNotFoundException;
+import kukekyakya.kukemarket.exception.*;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
 import kukekyakya.kukemarket.repository.role.RoleRepository;
 import org.junit.jupiter.api.Test;
@@ -20,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
+import static kukekyakya.kukemarket.factory.dto.SignInRequestFactory.createSignInRequest;
 import static kukekyakya.kukemarket.factory.dto.SignUpRequestFactory.createSignUpRequest;
 import static kukekyakya.kukemarket.factory.entity.MemberFactory.createMember;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,7 +89,7 @@ public class SignServiceTest {
         given(tokenService.createRefreshToken(anyString())).willReturn("refresh");
 
         // when
-        SignInResponse res = signService.signIn(new SignInRequest("email", "password"));
+        SignInResponse res = signService.signIn(createSignInRequest("email", "password"));
 
         // then
         assertThat(res.getAccessToken()).isEqualTo("access");
@@ -104,7 +102,7 @@ public class SignServiceTest {
         given(memberRepository.findByEmail(any())).willReturn(Optional.empty());
 
         // when, then
-        assertThatThrownBy(() -> signService.signIn(new SignInRequest("email", "password")))
+        assertThatThrownBy(() -> signService.signIn(createSignInRequest("email", "password")))
                 .isInstanceOf(LoginFailureException.class);
     }
 
@@ -115,7 +113,35 @@ public class SignServiceTest {
         given(passwordEncoder.matches(anyString(), anyString())).willReturn(false);
 
         // when, then
-        assertThatThrownBy(() -> signService.signIn(new SignInRequest("email", "password")))
+        assertThatThrownBy(() -> signService.signIn(createSignInRequest("email", "password")))
                 .isInstanceOf(LoginFailureException.class);
+    }
+
+    @Test
+    void refreshTokenTest() {
+        // given
+        String refreshToken = "refreshToken";
+        String subject = "subject";
+        String accessToken = "accessToken";
+        given(tokenService.validateRefreshToken(refreshToken)).willReturn(true);
+        given(tokenService.extractRefreshTokenSubject(refreshToken)).willReturn(subject);
+        given(tokenService.createAccessToken(subject)).willReturn(accessToken);
+
+        // when
+        RefreshTokenResponse res = signService.refreshToken(refreshToken);
+
+        // then
+        assertThat(res.getAccessToken()).isEqualTo(accessToken);
+    }
+
+    @Test
+    void refreshTokenExceptionByInvalidTokenTest() {
+        // given
+        String refreshToken = "refreshToken";
+        given(tokenService.validateRefreshToken(refreshToken)).willReturn(false);
+
+        // when, then
+        assertThatThrownBy(() -> signService.refreshToken(refreshToken))
+                .isInstanceOf(AuthenticationEntryPointException.class);
     }
 }

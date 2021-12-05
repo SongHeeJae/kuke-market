@@ -8,6 +8,10 @@ public class SignUpRequestFactory {
         return new SignUpRequest("email@email.com", "123456a!", "username", "nickname");
     }
 
+    public static SignUpRequest createSignUpRequest(String email, String password, String username, String nickname) {
+        return new SignUpRequest(email, password, username, nickname);
+    }
+
     public static SignUpRequest createSignUpRequestWithEmail(String email) {
         return new SignUpRequest(email, "123456a!", "username", "nickname");
     }

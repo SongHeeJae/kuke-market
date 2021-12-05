@@ -1,8 +1,8 @@
 package kukekyakya.kukemarket.controller.sign;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kukekyakya.kukemarket.dto.sign.RefreshTokenResponse;
 import kukekyakya.kukemarket.dto.sign.SignInRequest;
-import kukekyakya.kukemarket.dto.sign.SignInResponse;
 import kukekyakya.kukemarket.dto.sign.SignUpRequest;
 import kukekyakya.kukemarket.service.sign.SignService;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +15,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static kukekyakya.kukemarket.factory.dto.RefreshTokenResponseFactory.createRefreshTokenResponse;
+import static kukekyakya.kukemarket.factory.dto.SignInRequestFactory.createSignInRequest;
+import static kukekyakya.kukemarket.factory.dto.SignInResponseFactory.createSignInResponse;
+import static kukekyakya.kukemarket.factory.dto.SignUpRequestFactory.createSignUpRequest;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,7 +40,7 @@ class SignControllerTest {
     @Test
     void signUpTest() throws Exception {
         // given
-        SignUpRequest req = new SignUpRequest("email@email.com", "123456a!", "username", "nickname");
+        SignUpRequest req = createSignUpRequest("email@email.com", "123456a!", "username", "nickname");
 
         // when, then
         mockMvc.perform(
@@ -51,8 +55,8 @@ class SignControllerTest {
     @Test
     void signInTest() throws Exception {
         // given
-        SignInRequest req = new SignInRequest("email@email.com", "123456a!");
-        given(signService.signIn(req)).willReturn(new SignInResponse("access", "refresh"));
+        SignInRequest req = createSignInRequest("email@email.com", "123456a!");
+        given(signService.signIn(req)).willReturn(createSignInResponse("access", "refresh"));
 
         // when, then
         mockMvc.perform(
@@ -69,7 +73,7 @@ class SignControllerTest {
     @Test
     void ignoreNullValueInJsonResponseTest() throws Exception {
         // given
-        SignUpRequest req = new SignUpRequest("email@email.com", "123456a!", "username", "nickname");
+        SignUpRequest req = createSignUpRequest("email@email.com", "123456a!", "username", "nickname");
 
         // when, then
         mockMvc.perform(
@@ -79,5 +83,18 @@ class SignControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.result").doesNotExist());
 
+    }
+
+    @Test
+    void refreshTokenTest() throws Exception {
+        // given
+        given(signService.refreshToken("refreshToken")).willReturn(createRefreshTokenResponse("accessToken"));
+
+        // when, then
+        mockMvc.perform(
+                post("/api/refresh-token")
+                        .header("Authorization", "refreshToken"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result.data.accessToken").value("accessToken"));
     }
 }
