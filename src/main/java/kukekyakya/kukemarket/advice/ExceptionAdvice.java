@@ -5,6 +5,7 @@ import kukekyakya.kukemarket.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -67,5 +68,11 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Response roleNotFoundException() {
         return Response.failure(-1008, "요청한 권한 등급을 찾을 수 없습니다.");
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Response missingRequestHeaderException(MissingRequestHeaderException e) {
+        return Response.failure(-1009, e.getHeaderName() + " 요청 헤더가 누락되었습니다.");
     }
 }

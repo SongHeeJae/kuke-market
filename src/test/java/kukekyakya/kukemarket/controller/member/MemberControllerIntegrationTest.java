@@ -1,6 +1,5 @@
 package kukekyakya.kukemarket.controller.member;
 
-import kukekyakya.kukemarket.dto.sign.SignInRequest;
 import kukekyakya.kukemarket.dto.sign.SignInResponse;
 import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.exception.MemberNotFoundException;
@@ -18,6 +17,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import static kukekyakya.kukemarket.factory.dto.SignInRequestFactory.createSignInRequest;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -57,7 +57,7 @@ class MemberControllerIntegrationTest {
     void deleteTest() throws Exception {
         // given
         Member member = memberRepository.findByEmail(initDB.getMember1Email()).orElseThrow(MemberNotFoundException::new);
-        SignInResponse signInRes = signService.signIn(new SignInRequest(initDB.getMember1Email(), initDB.getPassword()));
+        SignInResponse signInRes = signService.signIn(createSignInRequest(initDB.getMember1Email(), initDB.getPassword()));
 
         // when, then
         mockMvc.perform(
@@ -69,7 +69,7 @@ class MemberControllerIntegrationTest {
     void deleteByAdminTest() throws Exception {
         // given
         Member member = memberRepository.findByEmail(initDB.getMember1Email()).orElseThrow(MemberNotFoundException::new);
-        SignInResponse adminSignInRes = signService.signIn(new SignInRequest(initDB.getAdminEmail(), initDB.getPassword()));
+        SignInResponse adminSignInRes = signService.signIn(createSignInRequest(initDB.getAdminEmail(), initDB.getPassword()));
 
         // when, then
         mockMvc.perform(
@@ -93,7 +93,7 @@ class MemberControllerIntegrationTest {
     void deleteAccessDeniedByNotResourceOwnerTest() throws Exception {
         // given
         Member member = memberRepository.findByEmail(initDB.getMember1Email()).orElseThrow(MemberNotFoundException::new);
-        SignInResponse attackerSignInRes = signService.signIn(new SignInRequest(initDB.getMember2Email(), initDB.getPassword()));
+        SignInResponse attackerSignInRes = signService.signIn(createSignInRequest(initDB.getMember2Email(), initDB.getPassword()));
 
         // when, then
         mockMvc.perform(
@@ -103,16 +103,16 @@ class MemberControllerIntegrationTest {
     }
 
     @Test
-    void deleteAccessDeniedByRefreshTokenTest() throws Exception {
+    void deleteUnauthorizedByRefreshTokenTest() throws Exception {
         // given
         Member member = memberRepository.findByEmail(initDB.getMember1Email()).orElseThrow(MemberNotFoundException::new);
-        SignInResponse signInRes = signService.signIn(new SignInRequest(initDB.getMember1Email(), initDB.getPassword()));
+        SignInResponse signInRes = signService.signIn(createSignInRequest(initDB.getMember1Email(), initDB.getPassword()));
 
         // when, then
         mockMvc.perform(
                 delete("/api/members/{id}", member.getId()).header("Authorization", signInRes.getRefreshToken()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/exception/access-denied"));
+                .andExpect(redirectedUrl("/exception/entry-point"));
     }
 
 }

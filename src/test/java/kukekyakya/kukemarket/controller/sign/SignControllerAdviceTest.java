@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kukekyakya.kukemarket.advice.ExceptionAdvice;
 import kukekyakya.kukemarket.dto.sign.SignInRequest;
 import kukekyakya.kukemarket.dto.sign.SignUpRequest;
-import kukekyakya.kukemarket.exception.LoginFailureException;
-import kukekyakya.kukemarket.exception.MemberEmailAlreadyExistsException;
-import kukekyakya.kukemarket.exception.MemberNicknameAlreadyExistsException;
-import kukekyakya.kukemarket.exception.RoleNotFoundException;
+import kukekyakya.kukemarket.exception.*;
 import kukekyakya.kukemarket.service.sign.SignService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static kukekyakya.kukemarket.factory.dto.SignInRequestFactory.createSignInRequest;
+import static kukekyakya.kukemarket.factory.dto.SignUpRequestFactory.createSignUpRequest;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -41,7 +41,7 @@ class SignControllerAdviceTest {
     @Test
     void signInLoginFailureExceptionTest() throws Exception {
         // given
-        SignInRequest req = new SignInRequest("email@email.com", "123456a!");
+        SignInRequest req = createSignInRequest("email@email.com", "123456a!");
         given(signService.signIn(any())).willThrow(LoginFailureException.class);
 
         // when, then
@@ -56,7 +56,7 @@ class SignControllerAdviceTest {
     @Test
     void signInMethodArgumentNotValidExceptionTest() throws Exception {
         // given
-        SignInRequest req = new SignInRequest("email", "1234567");
+        SignInRequest req = createSignInRequest("email", "1234567");
 
         // when, then
         mockMvc.perform(
@@ -70,7 +70,7 @@ class SignControllerAdviceTest {
     @Test
     void signUpMemberEmailAlreadyExistsExceptionTest() throws Exception {
         // given
-        SignUpRequest req = new SignUpRequest("email@email.com", "123456a!", "username", "nickname");
+        SignUpRequest req = createSignUpRequest("email@email.com", "123456a!", "username", "nickname");
         doThrow(MemberEmailAlreadyExistsException.class).when(signService).signUp(any());
 
         // when, then
@@ -85,7 +85,7 @@ class SignControllerAdviceTest {
     @Test
     void signUpMemberNicknameAlreadyExistsExceptionTest() throws Exception {
         // given
-        SignUpRequest req = new SignUpRequest("email@email.com", "123456a!", "username", "nickname");
+        SignUpRequest req = createSignUpRequest("email@email.com", "123456a!", "username", "nickname");
         doThrow(MemberNicknameAlreadyExistsException.class).when(signService).signUp(any());
 
         // when, then
@@ -99,7 +99,7 @@ class SignControllerAdviceTest {
     @Test
     void signUpRoleNotFoundExceptionTest() throws Exception {
         // given
-        SignUpRequest req = new SignUpRequest("email@email.com", "123456a!", "username", "nickname");
+        SignUpRequest req = createSignUpRequest("email@email.com", "123456a!", "username", "nickname");
         doThrow(RoleNotFoundException.class).when(signService).signUp(any());
 
         // when, then
@@ -114,7 +114,7 @@ class SignControllerAdviceTest {
     @Test
     void signUpMethodArgumentNotValidExceptionTest() throws Exception {
         // given
-        SignUpRequest req = new SignUpRequest("", "", "", "");
+        SignUpRequest req = createSignUpRequest("", "", "", "");
 
         // when, then
         mockMvc.perform(
@@ -123,6 +123,28 @@ class SignControllerAdviceTest {
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(-1003));
+    }
+
+    @Test
+    void refreshTokenAuthenticationEntryPointException() throws Exception {
+        // given
+        given(signService.refreshToken(anyString())).willThrow(AuthenticationEntryPointException.class);
+
+        // when, then
+        mockMvc.perform(
+                post("/api/refresh-token")
+                        .header("Authorization", "refreshToken"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value(-1001));
+    }
+
+    @Test
+    void refreshTokenMissingRequestHeaderException() throws Exception {
+        // given, when, then
+        mockMvc.perform(
+                post("/api/refresh-token"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(-1009));
     }
 }
 

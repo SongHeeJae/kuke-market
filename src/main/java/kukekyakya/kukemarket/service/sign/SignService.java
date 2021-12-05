@@ -1,5 +1,6 @@
 package kukekyakya.kukemarket.service.sign;
 
+import kukekyakya.kukemarket.dto.sign.RefreshTokenResponse;
 import kukekyakya.kukemarket.dto.sign.SignInRequest;
 import kukekyakya.kukemarket.dto.sign.SignInResponse;
 import kukekyakya.kukemarket.dto.sign.SignUpRequest;
@@ -15,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class SignService {
 
     private final MemberRepository memberRepository;
@@ -31,6 +31,7 @@ public class SignService {
                 passwordEncoder));
     }
 
+    @Transactional(readOnly = true)
     public SignInResponse signIn(SignInRequest req) {
         Member member = memberRepository.findByEmail(req.getEmail()).orElseThrow(LoginFailureException::new);
         validatePassword(req, member);
@@ -38,6 +39,19 @@ public class SignService {
         String accessToken = tokenService.createAccessToken(subject);
         String refreshToken = tokenService.createRefreshToken(subject);
         return new SignInResponse(accessToken, refreshToken);
+    }
+
+    public RefreshTokenResponse refreshToken(String rToken) {
+        validateRefreshToken(rToken);
+        String subject = tokenService.extractRefreshTokenSubject(rToken);
+        String accessToken = tokenService.createAccessToken(subject);
+        return new RefreshTokenResponse(accessToken);
+    }
+
+    private void validateRefreshToken(String rToken) {
+        if(!tokenService.validateRefreshToken(rToken)) {
+            throw new AuthenticationEntryPointException();
+        }
     }
 
     private void validateSignUpInfo(SignUpRequest req) {

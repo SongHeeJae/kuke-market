@@ -1,7 +1,6 @@
 package kukekyakya.kukemarket.repository.role;
 
 import kukekyakya.kukemarket.entity.member.Role;
-import kukekyakya.kukemarket.entity.member.RoleType;
 import kukekyakya.kukemarket.exception.RoleNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import static kukekyakya.kukemarket.factory.entity.RoleFactory.createRole;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -57,10 +57,6 @@ class RoleRepositoryTest {
         assertThatThrownBy(() -> roleRepository.save(createRole()))
                 .isInstanceOf(DataIntegrityViolationException.class);
 
-    }
-
-    private Role createRole() {
-        return new Role(RoleType.ROLE_NORMAL);
     }
 
     private void clear() {
