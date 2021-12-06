@@ -22,7 +22,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().mvcMatchers("/exception/**");
+        web.ignoring().mvcMatchers("/exception/**",
+                "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**");
     }
 
     @Override
