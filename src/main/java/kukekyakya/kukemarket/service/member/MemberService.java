@@ -1,7 +1,6 @@
 package kukekyakya.kukemarket.service.member;
 
 import kukekyakya.kukemarket.dto.member.MemberDto;
-import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.exception.MemberNotFoundException;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +19,12 @@ public class MemberService {
 
     @Transactional
     public void delete(Long id) {
-        Member member = memberRepository.findById(id).orElseThrow(MemberNotFoundException::new);
-        memberRepository.delete(member);
+        if(notExistsMember(id)) throw new MemberNotFoundException();
+        memberRepository.deleteById(id);
+    }
+
+    private boolean notExistsMember(Long id) {
+        return !memberRepository.existsById(id);
     }
 
 }

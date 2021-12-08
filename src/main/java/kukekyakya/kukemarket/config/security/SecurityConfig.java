@@ -1,6 +1,6 @@
 package kukekyakya.kukemarket.config.security;
 
-import kukekyakya.kukemarket.service.sign.TokenService;
+import kukekyakya.kukemarket.config.token.TokenHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -18,12 +17,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final TokenService tokenService;
+    private final TokenHelper accessTokenHelper;
     private final CustomUserDetailsService userDetailsService;
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().mvcMatchers("/exception/**");
+        web.ignoring().mvcMatchers("/exception/**",
+                "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**");
     }
 
     @Override
@@ -38,13 +38,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers(HttpMethod.POST, "/api/sign-in", "/api/sign-up", "/api/refresh-token").permitAll()
                         .antMatchers(HttpMethod.GET, "/api/**").permitAll()
                         .antMatchers(HttpMethod.DELETE, "/api/members/{id}/**").access("@memberGuard.check(#id)")
+                        .antMatchers(HttpMethod.POST, "/api/categories/**").hasRole("ADMIN")
+                        .antMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
                         .anyRequest().hasAnyRole("ADMIN")
                 .and()
                     .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())
                 .and()
                     .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 .and()
-                    .addFilterBefore(new JwtAuthenticationFilter(tokenService, userDetailsService), UsernamePasswordAuthenticationFilter.class);
+                    .addFilterBefore(new JwtAuthenticationFilter(accessTokenHelper, userDetailsService), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
