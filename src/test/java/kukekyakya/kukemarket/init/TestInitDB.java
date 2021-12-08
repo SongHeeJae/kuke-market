@@ -1,18 +1,16 @@
 package kukekyakya.kukemarket.init;
 
+import kukekyakya.kukemarket.entity.category.Category;
 import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.entity.member.Role;
 import kukekyakya.kukemarket.entity.member.RoleType;
 import kukekyakya.kukemarket.exception.RoleNotFoundException;
+import kukekyakya.kukemarket.repository.category.CategoryRepository;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
 import kukekyakya.kukemarket.repository.role.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.annotation.Profile;
-import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -24,6 +22,8 @@ public class TestInitDB {
     @Autowired MemberRepository memberRepository;
     @Autowired PasswordEncoder passwordEncoder;
 
+    @Autowired CategoryRepository categoryRepository;
+
     private String adminEmail = "admin@admin.com";
     private String member1Email = "member1@member.com";
     private String member2Email = "member2@member.com";
@@ -34,6 +34,7 @@ public class TestInitDB {
         initRole();
         initTestAdmin();
         initTestMember();
+        initCategory();
     }
 
     private void initRole() {
@@ -59,6 +60,13 @@ public class TestInitDB {
                                 List.of(roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new))))
         );
     }
+
+    private void initCategory() {
+        Category category1 = new Category("category1", null);
+        Category category2 = new Category("category2", category1);
+        categoryRepository.saveAll(List.of(category1, category2));
+    }
+
 
     public String getAdminEmail() {
         return adminEmail;

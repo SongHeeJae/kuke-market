@@ -6,7 +6,10 @@ import kukekyakya.kukemarket.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import javax.websocket.server.PathParam;
 
 @Api(value = "Member Controller", tags = "Member")
 @RestController
@@ -24,9 +27,6 @@ public class MemberController {
     }
 
     @ApiOperation(value = "사용자 정보 삭제", notes = "사용자 정보를 삭제한다.")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value = "Access Token", required = true, dataType = "String", paramType = "header")
-    })
     @DeleteMapping("/api/members/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Response delete(@ApiParam(value = "사용자 id", required = true) @PathVariable Long id) {

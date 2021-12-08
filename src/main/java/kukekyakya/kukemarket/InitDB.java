@@ -1,9 +1,11 @@
 package kukekyakya.kukemarket;
 
+import kukekyakya.kukemarket.entity.category.Category;
 import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.entity.member.Role;
 import kukekyakya.kukemarket.entity.member.RoleType;
 import kukekyakya.kukemarket.exception.RoleNotFoundException;
+import kukekyakya.kukemarket.repository.category.CategoryRepository;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
 import kukekyakya.kukemarket.repository.role.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class InitDB {
     private final RoleRepository roleRepository;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CategoryRepository categoryRepository;
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
@@ -35,6 +38,7 @@ public class InitDB {
         initRole();
         initTestAdmin();
         initTestMember();
+        initCategory();
     }
 
     private void initRole() {
@@ -59,6 +63,17 @@ public class InitDB {
                         new Member("member2@member.com", passwordEncoder.encode("123456a!"), "member2", "member2",
                                 List.of(roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new))))
         );
+    }
+
+    private void initCategory() {
+        Category c1 = categoryRepository.save(new Category("category1", null));
+        Category c2 = categoryRepository.save(new Category("category2", c1));
+        Category c3 = categoryRepository.save(new Category("category3", c1));
+        Category c4 = categoryRepository.save(new Category("category4", c2));
+        Category c5 = categoryRepository.save(new Category("category5", c2));
+        Category c6 = categoryRepository.save(new Category("category6", c4));
+        Category c7 = categoryRepository.save(new Category("category7", c3));
+        Category c8 = categoryRepository.save(new Category("category8", null));
     }
 
 }
