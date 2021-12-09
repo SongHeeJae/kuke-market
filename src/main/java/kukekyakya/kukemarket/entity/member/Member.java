@@ -31,7 +31,7 @@ public class Member extends EntityDate {
     @Column(nullable = false, unique = true, length = 20)
     private String nickname;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MemberRole> roles;
 
     public Member(String email, String password, String username, String nickname, List<Role> roles) {

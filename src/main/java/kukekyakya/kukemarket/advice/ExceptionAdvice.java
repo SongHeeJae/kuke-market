@@ -88,4 +88,16 @@ public class ExceptionAdvice {
         log.info("e = {}", e.getMessage());
         return Response.failure(-1011, "중첩 구조 변환에 실패하였습니다.");
     }
+
+    @ExceptionHandler(PostNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Response postNotFoundException() {
+        return Response.failure(-1012, "존재하지 않는 게시글입니다.");
+    }
+
+    @ExceptionHandler(UnsupportedImageFormatException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Response unsupportedImageFormatException() {
+        return Response.failure(-1013, "지원하지 않는 이미지 형식입니다.");
+    }
 }

@@ -180,6 +180,26 @@ class MemberRepositoryTest {
         assertThat(memberRoles.size()).isEqualTo(roles.size());
     }
 
+    @Test
+    void memberRoleCascadeDeleteTest() {
+        // given
+        List<RoleType> roleTypes = List.of(RoleType.ROLE_NORMAL, RoleType.ROLE_SPECIAL_BUYER, RoleType.ROLE_ADMIN);
+        List<Role> roles = roleTypes.stream().map(roleType -> new Role(roleType)).collect(Collectors.toList());
+        roleRepository.saveAll(roles);
+        clear();
+
+        Member member = memberRepository.save(createMemberWithRoles(roleRepository.findAll()));
+        clear();
+
+        // when
+        memberRepository.deleteById(member.getId());
+        clear();
+
+        // then
+        List<MemberRole> result = em.createQuery("select mr from MemberRole mr", MemberRole.class).getResultList();
+        assertThat(result.size()).isZero();
+    }
+
     private void clear() {
         em.flush();
         em.clear();
