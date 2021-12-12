@@ -52,7 +52,7 @@ public class Image {
     }
 
     private String generateUniqueName(String extension) {
-        return UUID.randomUUID().toString() + extension;
+        return UUID.randomUUID().toString() + "." + extension;
     }
 
     private String extractExtension(String originName) {

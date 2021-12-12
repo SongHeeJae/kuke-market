@@ -4,7 +4,7 @@ import kukekyakya.kukemarket.dto.response.Response;
 import kukekyakya.kukemarket.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -34,9 +34,9 @@ public class ExceptionAdvice {
         return Response.failure(-1002, "접근이 거부되었습니다.");
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Response methodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public Response bindException(BindException e) {
         return Response.failure(-1003, e.getBindingResult().getFieldError().getDefaultMessage());
     }
 
@@ -99,5 +99,12 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Response unsupportedImageFormatException() {
         return Response.failure(-1013, "지원하지 않는 이미지 형식입니다.");
+    }
+
+    @ExceptionHandler(FileUploadFailureException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Response fileUploadFailureException(FileUploadFailureException e) {
+        log.info("e = {}", e.getMessage());
+        return Response.failure(-1014, "파일 업로드에 실패하였습니다.");
     }
 }
