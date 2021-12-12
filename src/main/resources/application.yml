@@ -12,3 +12,8 @@ spring:
   profiles:
     active: local
     include: secret
+
+  servlet.multipart.max-file-size: 5MB
+  servlet.multipart.max-request-size: 5MB
+
+

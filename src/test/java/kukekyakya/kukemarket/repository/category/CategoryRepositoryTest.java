@@ -140,6 +140,15 @@ class CategoryRepositoryTest {
 
     }
 
+    @Test
+    void deleteByIdTest() {
+        Category category = categoryRepository.save(createCategory());
+        clear();
+
+        categoryRepository.deleteById(category.getId());
+        clear();
+    }
+
     void clear() {
         em.flush();
         em.clear();
