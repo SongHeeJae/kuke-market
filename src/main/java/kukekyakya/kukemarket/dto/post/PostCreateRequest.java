@@ -2,8 +2,6 @@ package kukekyakya.kukemarket.dto.post;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import kukekyakya.kukemarket.entity.category.Category;
-import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.entity.post.Image;
 import kukekyakya.kukemarket.entity.post.Post;
 import kukekyakya.kukemarket.exception.CategoryNotFoundException;
@@ -17,12 +15,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 
 @ApiModel(value = "게시글 생성 요청")
 @Data
@@ -43,9 +41,8 @@ public class PostCreateRequest {
     @PositiveOrZero(message = "0원 이상을 입력해주세요")
     private Long price;
 
-    @ApiModelProperty(value = "사용자 아이디", notes = "사용자 아이디를 입력해주세요", required = true, example = "23")
-    @NotNull(message = "사용자 아이디를 입력해주세요.")
-    @PositiveOrZero(message = "올바른 사용자 아이디를 입력해주세요.")
+    @ApiModelProperty(hidden = true)
+    @Null
     private Long memberId;
 
     @ApiModelProperty(value = "카테고리 아이디", notes = "카테고리 아이디를 입력해주세요", required = true, example = "3")

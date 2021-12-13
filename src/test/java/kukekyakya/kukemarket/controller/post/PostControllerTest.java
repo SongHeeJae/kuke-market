@@ -20,8 +20,7 @@ import java.util.List;
 import static kukekyakya.kukemarket.factory.dto.PostCreateRequestFactory.createPostCreateRequestWithImages;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,7 +53,6 @@ class PostControllerTest {
                         .param("title", req.getTitle())
                         .param("content", req.getContent())
                         .param("price", String.valueOf(req.getPrice()))
-                        .param("memberId", String.valueOf(req.getMemberId()))
                         .param("categoryId", String.valueOf(req.getCategoryId()))
                         .with(requestPostProcessor -> {
                             requestPostProcessor.setMethod("POST");
@@ -79,5 +77,17 @@ class PostControllerTest {
                 get("/api/posts/{id}", id))
                 .andExpect(status().isOk());
         verify(postService).read(id);
+    }
+
+    @Test
+    void deleteTest() throws Exception {
+        // given
+        Long id = 1L;
+
+        // when, then
+        mockMvc.perform(
+                delete("/api/posts/{id}", id))
+                .andExpect(status().isOk());
+        verify(postService).delete(id);
     }
 }
