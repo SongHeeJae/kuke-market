@@ -22,8 +22,8 @@ import static kukekyakya.kukemarket.factory.dto.PostCreateRequestFactory.createP
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -83,6 +83,18 @@ public class PostControllerAdviceTest {
                 .andExpect(jsonPath("$.code").value(-1012));
     }
 
+    @Test
+    void deleteExceptionByPostNotFoundTest() throws Exception {
+        // given
+        doThrow(PostNotFoundException.class).when(postService).delete(anyLong());
+
+        // when, then
+        mockMvc.perform(
+                delete("/api/posts/{id}", 1L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(-1012));
+    }
+
     private ResultActions performCreate() throws Exception {
         PostCreateRequest req = createPostCreateRequest();
         return mockMvc.perform(
@@ -90,7 +102,6 @@ public class PostControllerAdviceTest {
                         .param("title", req.getTitle())
                         .param("content", req.getContent())
                         .param("price", String.valueOf(req.getPrice()))
-                        .param("memberId", String.valueOf(req.getMemberId()))
                         .param("categoryId", String.valueOf(req.getCategoryId()))
                         .with(requestPostProcessor -> {
                             requestPostProcessor.setMethod("POST");

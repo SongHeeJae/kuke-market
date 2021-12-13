@@ -42,6 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .antMatchers(HttpMethod.POST, "/api/categories/**").hasRole("ADMIN")
                         .antMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
                         .antMatchers(HttpMethod.POST, "/api/posts").authenticated()
+                        .antMatchers(HttpMethod.DELETE, "/api/posts/{id}").access("@postGuard.check(#id)")
                         .anyRequest().hasAnyRole("ADMIN")
                 .and()
                     .exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())

@@ -17,7 +17,7 @@ class PostCreateRequestValidationTest {
     @Test
     void validateTest() {
         // given
-        PostCreateRequest req = createPostCreateRequest();
+        PostCreateRequest req = createPostCreateRequestWithMemberId(null);
 
         // when
         Set<ConstraintViolation<PostCreateRequest>> validate = validator.validate(req);
@@ -111,23 +111,9 @@ class PostCreateRequestValidationTest {
     }
 
     @Test
-    void invalidateByNullMemberIdTest() {
+    void invalidateByNotNullMemberIdTest() {
         // given
-        Long invalidValue = null;
-        PostCreateRequest req = createPostCreateRequestWithMemberId(invalidValue);
-
-        // when
-        Set<ConstraintViolation<PostCreateRequest>> validate = validator.validate(req);
-
-        // then
-        assertThat(validate).isNotEmpty();
-        assertThat(validate.stream().map(v -> v.getInvalidValue()).collect(toSet())).contains(invalidValue);
-    }
-
-    @Test
-    void invalidateByNegativeMemberIdTest() {
-        // given
-        Long invalidValue = -1L;
+        Long invalidValue = 1L;
         PostCreateRequest req = createPostCreateRequestWithMemberId(invalidValue);
 
         // when
