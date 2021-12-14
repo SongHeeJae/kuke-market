@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import kukekyakya.kukemarket.aop.AssignMemberId;
 import kukekyakya.kukemarket.dto.post.PostCreateRequest;
+import kukekyakya.kukemarket.dto.post.PostUpdateRequest;
 import kukekyakya.kukemarket.dto.response.Response;
 import kukekyakya.kukemarket.service.post.PostService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,6 @@ public class PostController {
     @ResponseStatus(HttpStatus.CREATED)
     @AssignMemberId
     public Response create(@Valid @ModelAttribute PostCreateRequest req) {
-        log.info("req id = {}", req.getMemberId());
         return Response.success(postService.create(req));
     }
 
@@ -43,5 +43,14 @@ public class PostController {
     public Response delete(@ApiParam(value = "게시글 id", required = true) @PathVariable Long id) {
         postService.delete(id);
         return Response.success();
+    }
+
+    @ApiOperation(value = "게시글 수정", notes = "게시글을 수정한다.")
+    @PutMapping("/api/posts/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Response update(
+            @ApiParam(value = "게시글 id", required = true) @PathVariable Long id,
+            @Valid @ModelAttribute PostUpdateRequest req) {
+        return Response.success(postService.update(id, req));
     }
 }

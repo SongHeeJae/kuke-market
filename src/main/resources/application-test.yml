@@ -1,4 +1,3 @@
 upload:
   image:
-    path: test-path
     location: test-location

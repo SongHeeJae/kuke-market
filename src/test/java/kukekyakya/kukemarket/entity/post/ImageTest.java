@@ -2,11 +2,12 @@ package kukekyakya.kukemarket.entity.post;
 
 import kukekyakya.kukemarket.exception.UnsupportedImageFormatException;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import static kukekyakya.kukemarket.factory.entity.ImageFactory.*;
-import static kukekyakya.kukemarket.factory.entity.PostFactory.*;
-import static org.assertj.core.api.Assertions.*;
+import static kukekyakya.kukemarket.factory.entity.ImageFactory.createImage;
+import static kukekyakya.kukemarket.factory.entity.ImageFactory.createImageWithOriginName;
+import static kukekyakya.kukemarket.factory.entity.PostFactory.createPost;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ImageTest {
 
@@ -66,30 +67,4 @@ class ImageTest {
         assertThat(image.getPost()).isNotSameAs(post);
     }
 
-    @Test
-    void isEqualsTrueTest() {
-        // given
-        Image image1 = createImageWithOriginName("image1.jpg");
-        Image image2 = createImageWithOriginName("image2.jpg");
-        ReflectionTestUtils.setField(image2, "uniqueName", image1.getUniqueName());
-
-        // when
-        boolean result = image1.isEquals(image2);
-
-        // then
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    void isEqualsFalseTest() {
-        // given
-        Image image1 = createImageWithOriginName("image1.jpg");
-        Image image2 = createImageWithOriginName("image1.jpg");
-
-        // when
-        boolean result = image1.isEquals(image2);
-
-        // then
-        assertThat(result).isFalse();
-    }
 }
