@@ -20,9 +20,6 @@ public class Image {
     private Long id;
 
     @Column(nullable = false)
-    private String path;
-
-    @Column(nullable = false)
     private String uniqueName;
 
     @Column(nullable = false)
@@ -35,20 +32,15 @@ public class Image {
 
     private final static String supportedExtension[] = {"jpg", "jpeg", "gif", "bmp", "png"};
 
-    public Image(String path, String originName) {
-        this.path = path;
-        this.uniqueName = generateUniqueName(extractExtension(originName));
+    public Image(String originName) {
         this.originName = originName;
+        this.uniqueName = generateUniqueName(extractExtension(originName));
     }
 
     public void initPost(Post post) {
         if(this.post == null) {
             this.post = post;
         }
-    }
-
-    public boolean isEquals(Image image) {
-        return uniqueName.equals(image.getUniqueName());
     }
 
     private String generateUniqueName(String extension) {

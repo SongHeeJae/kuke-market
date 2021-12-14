@@ -1,4 +1,3 @@
 upload:
   image:
-    path: http://localhost:8080/image/
     location: C:/Users/gmlwo/Desktop/kukemarket/image/

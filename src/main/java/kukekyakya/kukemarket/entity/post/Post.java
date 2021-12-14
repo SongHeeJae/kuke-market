@@ -1,5 +1,6 @@
 package kukekyakya.kukemarket.entity.post;
 
+import kukekyakya.kukemarket.dto.post.PostUpdateRequest;
 import kukekyakya.kukemarket.entity.category.Category;
 import kukekyakya.kukemarket.entity.common.EntityDate;
 import kukekyakya.kukemarket.entity.member.Member;
@@ -9,10 +10,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -57,8 +60,11 @@ public class Post extends EntityDate {
         addImages(images);
     }
 
-    public UpdatedImageResult updateImages(List<Image> updatedImages) {
-        UpdatedImageResult result = findUpdatedImages(updatedImages);
+    public ImageUpdatedResult update(PostUpdateRequest req) {
+        this.title = req.getTitle();
+        this.content = req.getContent();
+        this.price = req.getPrice();
+        ImageUpdatedResult result = findImageUpdatedResult(req.getAddedImages(), req.getDeletedImages());
         addImages(result.getAddedImages());
         deleteImages(result.getDeletedImages());
         return result;
@@ -75,34 +81,32 @@ public class Post extends EntityDate {
         deleted.stream().forEach(di -> this.images.remove(di));
     }
 
-    private UpdatedImageResult findUpdatedImages(List<Image> updatedImages) {
-        return new UpdatedImageResult(
-                findAddedImages(updatedImages),
-                findDeletedImages(updatedImages)
-        );
+    private ImageUpdatedResult findImageUpdatedResult(List<MultipartFile> addedImageFiles, List<Long> deletedImageIds) {
+        List<Image> addedImages = convertImageFilesToImages(addedImageFiles);
+        List<Image> deletedImages = convertImageIdsToImages(deletedImageIds);
+        return new ImageUpdatedResult(addedImageFiles, addedImages, deletedImages);
     }
 
-    private List<Image> findAddedImages(List<Image> updatedImages) {
-        return findDifference(updatedImages, this.images);
-    }
-
-    private List<Image> findDeletedImages(List<Image> updatedImages) {
-        return findDifference(this.images, updatedImages);
-    }
-
-    private List<Image> findDifference(List<Image> a, List<Image> b) {
-        return a.stream()
-                .filter(i -> !containsImage(b, i))
+    private List<Image> convertImageIdsToImages(List<Long> imageIds) {
+        return imageIds.stream()
+                .map(id -> convertImageIdToImage(id))
+                .filter(i -> i.isPresent())
+                .map(i -> i.get())
                 .collect(toList());
     }
 
-    private boolean containsImage(List<Image> list, Image image) {
-        return list.stream().anyMatch(i -> i.isEquals(image));
+    private Optional<Image> convertImageIdToImage(Long id) {
+        return this.images.stream().filter(i -> i.getId().equals(id)).findAny();
+    }
+
+    private List<Image> convertImageFilesToImages(List<MultipartFile> imageFiles) {
+        return imageFiles.stream().map(imageFile -> new Image(imageFile.getOriginalFilename())).collect(toList());
     }
 
     @Getter
     @AllArgsConstructor
-    public static class UpdatedImageResult {
+    public static class ImageUpdatedResult {
+        private List<MultipartFile> addedImageFiles;
         private List<Image> addedImages;
         private List<Image> deletedImages;
     }

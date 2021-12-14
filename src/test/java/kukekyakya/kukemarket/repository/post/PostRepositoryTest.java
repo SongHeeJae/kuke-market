@@ -1,5 +1,6 @@
 package kukekyakya.kukemarket.repository.post;
 
+import kukekyakya.kukemarket.dto.post.PostUpdateRequest;
 import kukekyakya.kukemarket.entity.category.Category;
 import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.entity.post.Image;
@@ -12,20 +13,23 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
 import java.util.List;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
+import static kukekyakya.kukemarket.factory.dto.PostUpdateRequestFactory.createPostUpdateRequest;
 import static kukekyakya.kukemarket.factory.entity.CategoryFactory.createCategory;
 import static kukekyakya.kukemarket.factory.entity.ImageFactory.createImage;
 import static kukekyakya.kukemarket.factory.entity.ImageFactory.createImageWithOriginName;
 import static kukekyakya.kukemarket.factory.entity.MemberFactory.createMember;
 import static kukekyakya.kukemarket.factory.entity.PostFactory.createPost;
 import static kukekyakya.kukemarket.factory.entity.PostFactory.createPostWithImages;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 class PostRepositoryTest {
@@ -129,29 +133,34 @@ class PostRepositoryTest {
 
         // then
         List<Post> result = postRepository.findAll();
-        System.out.println("result = " + result);
+        assertThat(result.size()).isZero();
     }
 
     @Test
-    void updateImagesTest() {
+    void updateTest() {
         // given
-        Image A = createImageWithOriginName("A.jpg");
-        Image B = createImageWithOriginName("B.png");
-        Image C = createImageWithOriginName("C.png");
-        Post post = postRepository.save(createPostWithImages(member, category, List.of(A, B)));
+        Image a = createImageWithOriginName("a.jpg");
+        Image b = createImageWithOriginName("b.png");
+        Post post = postRepository.save(createPostWithImages(member, category, List.of(a, b)));
         clear();
 
         // when
+        MockMultipartFile cFile = new MockMultipartFile("c", "c.png", MediaType.IMAGE_PNG_VALUE, "cFile".getBytes());
+        PostUpdateRequest postUpdateRequest = createPostUpdateRequest("update title", "update content", 1234L, List.of(cFile), List.of(a.getId()));
         Post foundPost = postRepository.findById(post.getId()).orElseThrow(PostNotFoundException::new);
-        foundPost.updateImages(List.of(B, C));
+        foundPost.update(postUpdateRequest);
         clear();
 
         // then
         Post result = postRepository.findById(post.getId()).orElseThrow(PostNotFoundException::new);
+        assertThat(result.getTitle()).isEqualTo(postUpdateRequest.getTitle());
+        assertThat(result.getContent()).isEqualTo(postUpdateRequest.getContent());
+        assertThat(result.getPrice()).isEqualTo(postUpdateRequest.getPrice());
+
         List<Image> images = result.getImages();
         List<String> originNames = images.stream().map(i -> i.getOriginName()).collect(toList());
         assertThat(images.size()).isEqualTo(2);
-        assertThat(originNames).contains(B.getOriginName(), C.getOriginName());
+        assertThat(originNames).contains(b.getOriginName(), cFile.getOriginalFilename());
 
         List<Image> resultImages = imageRepository.findAll();
         assertThat(resultImages.size()).isEqualTo(2);

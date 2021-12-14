@@ -53,14 +53,14 @@ public class PostCreateRequest {
     @ApiModelProperty(value = "이미지", notes = "이미지를 첨부해주세요.")
     private List<MultipartFile> images = new ArrayList<>();
 
-    public static Post toEntity(PostCreateRequest req, MemberRepository memberRepository, CategoryRepository categoryRepository, String path) {
+    public static Post toEntity(PostCreateRequest req, MemberRepository memberRepository, CategoryRepository categoryRepository) {
         return new Post(
                 req.title,
                 req.content,
                 req.price,
                 memberRepository.findById(req.getMemberId()).orElseThrow(MemberNotFoundException::new),
                 categoryRepository.findById(req.getCategoryId()).orElseThrow(CategoryNotFoundException::new),
-                req.images.stream().map(i -> new Image(path, i.getOriginalFilename())).collect(toList())
+                req.images.stream().map(i -> new Image(i.getOriginalFilename())).collect(toList())
         );
     }
 }
