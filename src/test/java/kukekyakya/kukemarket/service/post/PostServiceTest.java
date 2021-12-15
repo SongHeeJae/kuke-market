@@ -2,6 +2,7 @@ package kukekyakya.kukemarket.service.post;
 
 import kukekyakya.kukemarket.dto.post.PostCreateRequest;
 import kukekyakya.kukemarket.dto.post.PostDto;
+import kukekyakya.kukemarket.dto.post.PostListDto;
 import kukekyakya.kukemarket.dto.post.PostUpdateRequest;
 import kukekyakya.kukemarket.entity.post.Image;
 import kukekyakya.kukemarket.entity.post.Post;
@@ -9,21 +10,18 @@ import kukekyakya.kukemarket.exception.CategoryNotFoundException;
 import kukekyakya.kukemarket.exception.MemberNotFoundException;
 import kukekyakya.kukemarket.exception.PostNotFoundException;
 import kukekyakya.kukemarket.exception.UnsupportedImageFormatException;
-import kukekyakya.kukemarket.factory.dto.PostUpdateRequestFactory;
-import kukekyakya.kukemarket.factory.entity.ImageFactory;
 import kukekyakya.kukemarket.repository.category.CategoryRepository;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
 import kukekyakya.kukemarket.repository.post.PostRepository;
 import kukekyakya.kukemarket.service.file.FileService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +30,7 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.toList;
 import static kukekyakya.kukemarket.factory.dto.PostCreateRequestFactory.createPostCreateRequest;
 import static kukekyakya.kukemarket.factory.dto.PostCreateRequestFactory.createPostCreateRequestWithImages;
+import static kukekyakya.kukemarket.factory.dto.PostReadConditionFactory.*;
 import static kukekyakya.kukemarket.factory.dto.PostUpdateRequestFactory.createPostUpdateRequest;
 import static kukekyakya.kukemarket.factory.entity.CategoryFactory.createCategory;
 import static kukekyakya.kukemarket.factory.entity.ImageFactory.*;
@@ -180,5 +179,17 @@ class PostServiceTest {
         // when, then
         assertThatThrownBy(() -> postService.update(1L, createPostUpdateRequest("title", "content", 1234L, List.of(), List.of())))
                 .isInstanceOf(PostNotFoundException.class);
+    }
+
+    @Test
+    void readAllTest() {
+        // given
+        given(postRepository.findAllWithMemberOrderByIdDesc(any())).willReturn(Page.empty());
+
+        // when
+        PostListDto postListDto = postService.readAll(createPostReadCondition(1, 1));
+
+        // then
+        assertThat(postListDto.getPostList().size()).isZero();
     }
 }

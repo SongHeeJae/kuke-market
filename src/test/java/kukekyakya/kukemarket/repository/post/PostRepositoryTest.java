@@ -1,5 +1,6 @@
 package kukekyakya.kukemarket.repository.post;
 
+import kukekyakya.kukemarket.dto.post.PostSimpleDto;
 import kukekyakya.kukemarket.dto.post.PostUpdateRequest;
 import kukekyakya.kukemarket.entity.category.Category;
 import kukekyakya.kukemarket.entity.member.Member;
@@ -13,12 +14,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 import static kukekyakya.kukemarket.factory.dto.PostUpdateRequestFactory.createPostUpdateRequest;
@@ -177,6 +182,41 @@ class PostRepositoryTest {
         // then
         Member foundMember = foundPost.getMember();
         assertThat(foundMember.getEmail()).isEqualTo(member.getEmail());
+    }
+
+    @Test
+    void findAllWithMemberOrderByIdDescTest() {
+        // given
+        List<Post> savedPost = new ArrayList<>();
+        IntStream.range(0, 5).forEach(i -> {
+            Post post = postRepository.save(createPost(member, category));
+            savedPost.add(post);
+        });
+        clear();
+
+        // when
+        Page<PostSimpleDto> page1 = postRepository.findAllWithMemberOrderByIdDesc(PageRequest.of(0, 2));
+        Page<PostSimpleDto> page2 = postRepository.findAllWithMemberOrderByIdDesc(PageRequest.of(1, 2));
+        Page<PostSimpleDto> page3 = postRepository.findAllWithMemberOrderByIdDesc(PageRequest.of(2, 2));
+
+        // then
+        assertThat(page1.getTotalElements()).isEqualTo(savedPost.size());
+        assertThat(page1.getTotalPages()).isEqualTo((savedPost.size() + 1) / 2);
+
+        assertThat(page1.getContent().size()).isEqualTo(2);
+        assertThat(page2.getContent().size()).isEqualTo(2);
+        assertThat(page3.getContent().size()).isEqualTo(1);
+
+        assertThat(page1.getContent().get(0).getId()).isEqualTo(savedPost.get(4).getId());
+        assertThat(page1.getContent().get(1).getId()).isEqualTo(savedPost.get(3).getId());
+        assertThat(page1.hasNext()).isTrue();
+
+        assertThat(page2.getContent().get(0).getId()).isEqualTo(savedPost.get(2).getId());
+        assertThat(page2.getContent().get(1).getId()).isEqualTo(savedPost.get(1).getId());
+        assertThat(page2.hasNext()).isTrue();
+
+        assertThat(page3.getContent().get(0).getId()).isEqualTo(savedPost.get(0).getId());
+        assertThat(page3.hasNext()).isFalse();
     }
 
     void clear() {

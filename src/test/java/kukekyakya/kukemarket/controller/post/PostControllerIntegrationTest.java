@@ -1,6 +1,7 @@
 package kukekyakya.kukemarket.controller.post;
 
 import kukekyakya.kukemarket.dto.post.PostCreateRequest;
+import kukekyakya.kukemarket.dto.post.PostReadCondition;
 import kukekyakya.kukemarket.dto.sign.SignInResponse;
 import kukekyakya.kukemarket.entity.category.Category;
 import kukekyakya.kukemarket.entity.member.Member;
@@ -28,10 +29,12 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.List;
 
 import static kukekyakya.kukemarket.factory.dto.PostCreateRequestFactory.createPostCreateRequest;
+import static kukekyakya.kukemarket.factory.dto.PostReadConditionFactory.createPostReadCondition;
 import static kukekyakya.kukemarket.factory.dto.SignInRequestFactory.createSignInRequest;
 import static kukekyakya.kukemarket.factory.entity.PostFactory.createPost;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -284,5 +287,17 @@ public class PostControllerIntegrationTest {
                         .header("Authorization", notOwnerSignInRes.getAccessToken()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/exception/access-denied"));
+    }
+
+    @Test
+    void readAllTest() throws Exception {
+        // given
+        PostReadCondition cond = createPostReadCondition(0, 1);
+
+        // when, then
+        mockMvc.perform(
+                get("/api/posts")
+                        .param("page", String.valueOf(cond.getPage())).param("size", String.valueOf(cond.getSize())))
+                .andExpect(status().isOk());
     }
 }
