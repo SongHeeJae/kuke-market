@@ -9,7 +9,6 @@ import kukekyakya.kukemarket.repository.member.MemberRepository;
 import kukekyakya.kukemarket.repository.post.PostRepository;
 import kukekyakya.kukemarket.service.file.FileService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +28,7 @@ public class PostService {
 
     public PostListDto readAll(PostReadCondition cond) {
         return PostListDto.toDto(
-                postRepository.findAllWithMemberOrderByIdDesc(PageRequest.of(cond.getPage(), cond.getSize()))
+                postRepository.findAllByCondition(cond)
         );
     }
 

@@ -20,6 +20,7 @@ class PostCreateRequestValidationTest {
         PostCreateRequest req = createPostCreateRequestWithMemberId(null);
 
         // when
+
         Set<ConstraintViolation<PostCreateRequest>> validate = validator.validate(req);
 
         // then

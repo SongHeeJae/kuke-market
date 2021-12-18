@@ -24,7 +24,7 @@ public class CategoryCreateRequest {
     @Size(min = 2, max = 30, message = "카테고리 명의 길이는 2글자에서 30글자 입니다.")
     private String name;
 
-    @ApiModelProperty(value = "부모 카테고리 아이디", notes = "부모 카테고리 아이디를 입력해주세요", required = false, example = "7")
+    @ApiModelProperty(value = "부모 카테고리 아이디", notes = "부모 카테고리 아이디를 입력해주세요", example = "7")
     private Long parentId;
 
     public static Category toEntity(CategoryCreateRequest req, CategoryRepository categoryRepository) {

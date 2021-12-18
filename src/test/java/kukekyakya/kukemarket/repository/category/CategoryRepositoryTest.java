@@ -1,10 +1,12 @@
 package kukekyakya.kukemarket.repository.category;
 
+import kukekyakya.kukemarket.config.QuerydslConfig;
 import kukekyakya.kukemarket.entity.category.Category;
 import kukekyakya.kukemarket.exception.CategoryNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.persistence.EntityManager;
@@ -19,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
+@Import(QuerydslConfig.class)
 class CategoryRepositoryTest {
     @Autowired CategoryRepository categoryRepository;
     @PersistenceContext EntityManager em;

@@ -8,10 +8,14 @@ spring:
     hibernate:
       ddl-auto: create
     show-sql: true
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
 
   profiles:
     active: local
     include: secret
+
 
   servlet.multipart.max-file-size: 5MB
   servlet.multipart.max-request-size: 5MB

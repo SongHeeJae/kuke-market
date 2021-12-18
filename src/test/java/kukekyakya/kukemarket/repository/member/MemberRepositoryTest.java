@@ -1,5 +1,6 @@
 package kukekyakya.kukemarket.repository.member;
 
+import kukekyakya.kukemarket.config.QuerydslConfig;
 import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.entity.member.MemberRole;
 import kukekyakya.kukemarket.entity.member.Role;
@@ -9,6 +10,7 @@ import kukekyakya.kukemarket.repository.role.RoleRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import javax.persistence.EntityManager;
@@ -23,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
+@Import(QuerydslConfig.class)
 class MemberRepositoryTest {
 
     @Autowired MemberRepository memberRepository;

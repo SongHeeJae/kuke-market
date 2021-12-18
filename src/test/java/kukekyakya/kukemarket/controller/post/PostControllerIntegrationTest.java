@@ -34,10 +34,10 @@ import static kukekyakya.kukemarket.factory.dto.SignInRequestFactory.createSignI
 import static kukekyakya.kukemarket.factory.entity.PostFactory.createPost;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -297,7 +297,9 @@ public class PostControllerIntegrationTest {
         // when, then
         mockMvc.perform(
                 get("/api/posts")
-                        .param("page", String.valueOf(cond.getPage())).param("size", String.valueOf(cond.getSize())))
+                        .param("page", String.valueOf(cond.getPage())).param("size", String.valueOf(cond.getSize()))
+                        .param("categoryId", String.valueOf(1), String.valueOf(2))
+                        .param("memberId", String.valueOf(1), String.valueOf(2)))
                 .andExpect(status().isOk());
     }
 }

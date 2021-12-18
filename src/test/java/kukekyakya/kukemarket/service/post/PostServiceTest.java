@@ -184,7 +184,7 @@ class PostServiceTest {
     @Test
     void readAllTest() {
         // given
-        given(postRepository.findAllWithMemberOrderByIdDesc(any())).willReturn(Page.empty());
+        given(postRepository.findAllByCondition(any())).willReturn(Page.empty());
 
         // when
         PostListDto postListDto = postService.readAll(createPostReadCondition(1, 1));

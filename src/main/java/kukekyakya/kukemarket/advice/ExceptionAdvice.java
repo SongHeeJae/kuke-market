@@ -18,7 +18,6 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Response exception(Exception e) {
         log.info("e = {}", e.getMessage());
-        e.printStackTrace();
         return Response.failure(-1000, "오류가 발생하였습니다.");
     }
 
@@ -106,5 +105,11 @@ public class ExceptionAdvice {
     public Response fileUploadFailureException(FileUploadFailureException e) {
         log.info("e = {}", e.getMessage());
         return Response.failure(-1014, "파일 업로드에 실패하였습니다.");
+    }
+
+    @ExceptionHandler(CommentNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Response commentNotFoundException() {
+        return Response.failure(-1015, "존재하지 않는 댓글입니다.");
     }
 }

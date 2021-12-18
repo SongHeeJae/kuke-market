@@ -3,7 +3,6 @@ package kukekyakya.kukemarket.controller.post;
 import kukekyakya.kukemarket.dto.post.PostCreateRequest;
 import kukekyakya.kukemarket.dto.post.PostReadCondition;
 import kukekyakya.kukemarket.dto.post.PostUpdateRequest;
-import kukekyakya.kukemarket.factory.dto.PostReadConditionFactory;
 import kukekyakya.kukemarket.service.post.PostService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import static kukekyakya.kukemarket.factory.dto.PostCreateRequestFactory.createPostCreateRequestWithImages;
-import static kukekyakya.kukemarket.factory.dto.PostReadConditionFactory.*;
+import static kukekyakya.kukemarket.factory.dto.PostReadConditionFactory.createPostReadCondition;
 import static kukekyakya.kukemarket.factory.dto.PostUpdateRequestFactory.createPostUpdateRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -140,13 +139,16 @@ class PostControllerTest {
     @Test
     void readAllTest() throws Exception {
         // given
-        PostReadCondition cond = createPostReadCondition(0, 1);
+        PostReadCondition cond = createPostReadCondition(0, 1, List.of(1L, 2L), List.of(1L, 2L));
 
         // when, then
         mockMvc.perform(
                 get("/api/posts")
-                        .param("page", String.valueOf(cond.getPage())).param("size", String.valueOf(cond.getSize())))
+                        .param("page", String.valueOf(cond.getPage())).param("size", String.valueOf(cond.getSize()))
+                        .param("categoryId", String.valueOf(cond.getCategoryId().get(0)), String.valueOf(cond.getCategoryId().get(1)))
+                        .param("memberId", String.valueOf(cond.getMemberId().get(0)), String.valueOf(cond.getMemberId().get(1))))
                 .andExpect(status().isOk());
+
         verify(postService).readAll(cond);
     }
 }

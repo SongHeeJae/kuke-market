@@ -1,13 +1,14 @@
 package kukekyakya.kukemarket;
 
 import kukekyakya.kukemarket.entity.category.Category;
+import kukekyakya.kukemarket.entity.comment.Comment;
 import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.entity.member.Role;
 import kukekyakya.kukemarket.entity.member.RoleType;
 import kukekyakya.kukemarket.entity.post.Post;
-import kukekyakya.kukemarket.exception.MemberNotFoundException;
 import kukekyakya.kukemarket.exception.RoleNotFoundException;
 import kukekyakya.kukemarket.repository.category.CategoryRepository;
+import kukekyakya.kukemarket.repository.comment.CommentRepository;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
 import kukekyakya.kukemarket.repository.post.PostRepository;
 import kukekyakya.kukemarket.repository.role.RoleRepository;
@@ -34,6 +35,7 @@ public class InitDB {
     private final PasswordEncoder passwordEncoder;
     private final CategoryRepository categoryRepository;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
@@ -45,6 +47,7 @@ public class InitDB {
         initTestMember();
         initCategory();
         initPost();
+        initComment();
 
         log.info("initialized database");
     }
@@ -87,10 +90,25 @@ public class InitDB {
     private void initPost() {
         Member member = memberRepository.findAll().get(0);
         Category category = categoryRepository.findAll().get(0);
-        IntStream.range(0, 100000)
+        IntStream.range(0, 100)
                 .forEach(i -> postRepository.save(
                         new Post("title" + i, "content" + i, Long.valueOf(i), member, category, List.of())
                 ));
+    }
+
+    private void initComment() {
+        Member member = memberRepository.findAll().get(0);
+        Post post = postRepository.findAll().get(0);
+        Comment c1 = commentRepository.save(new Comment("content", member, post, null));
+        Comment c2 = commentRepository.save(new Comment("content", member, post, c1));
+        Comment c3 = commentRepository.save(new Comment("content", member, post, c1));
+        Comment c4 = commentRepository.save(new Comment("content", member, post, c2));
+        Comment c5 = commentRepository.save(new Comment("content", member, post, c2));
+        Comment c6 = commentRepository.save(new Comment("content", member, post, c4));
+        Comment c7 = commentRepository.save(new Comment("content", member, post, c3));
+        Comment c8 = commentRepository.save(new Comment("content", member, post, null));
+
+        c1.delete();
     }
 
 }
