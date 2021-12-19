@@ -55,11 +55,6 @@ public class Comment extends EntityDate {
         this.deleted = false;
     }
 
-    // 자식이 없다면 제거
-    // 자식이 없어서 제거될 때 삭제 표시된 부모도 모두 제거
-    // 자식이 있다면 삭제 표시
-    // 다 제거된 자식이라면 그냥 삭제해버림
-
     public Optional<Comment> findDeletableComment() {
         return hasChildren() ? Optional.empty() : Optional.of(findDeletableCommentByParent());
     }
