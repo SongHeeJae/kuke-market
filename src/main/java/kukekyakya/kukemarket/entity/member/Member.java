@@ -14,6 +14,11 @@ import static java.util.stream.Collectors.toSet;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NamedEntityGraph(
+        name = "Member.roles",
+        attributeNodes = @NamedAttributeNode(value = "roles", subgraph = "Member.roles.role"),
+        subgraphs = @NamedSubgraph(name = "Member.roles.role", attributeNodes = @NamedAttributeNode("role"))
+)
 public class Member extends EntityDate {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
