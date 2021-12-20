@@ -6,6 +6,7 @@ import kukekyakya.kukemarket.entity.post.Post;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -17,6 +18,7 @@ import java.util.Optional;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Slf4j
 public class Comment extends EntityDate {
 
     @Id
@@ -64,14 +66,18 @@ public class Comment extends EntityDate {
     }
 
     private Comment findDeletableCommentByParent() {
-        return isDeletableParent() ? parent.findDeletableCommentByParent() : this;
+        if (isDeletedParent()) {
+            Comment deletableParent = getParent().findDeletableCommentByParent();
+            if(getParent().getChildren().size() == 1) return deletableParent;
+        }
+        return this;
     }
 
     private boolean hasChildren() {
-        return children.size() != 0;
+        return getChildren().size() != 0;
     }
 
-    private boolean isDeletableParent() {
-        return parent != null && parent.deleted && parent.children.size() == 1;
+    private boolean isDeletedParent() {
+        return getParent() != null && getParent().isDeleted();
     }
 }

@@ -35,7 +35,7 @@ public class CommentService {
 
     @Transactional
     public void delete(Long id) {
-        Comment comment = commentRepository.findById(id).orElseThrow(CommentNotFoundException::new);
+        Comment comment = commentRepository.findWithParentById(id).orElseThrow(CommentNotFoundException::new);
         comment.findDeletableComment().ifPresentOrElse(commentRepository::delete, comment::delete);
     }
 }

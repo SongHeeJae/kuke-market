@@ -107,8 +107,6 @@ public class InitDB {
         Comment c6 = commentRepository.save(new Comment("content", member, post, c4));
         Comment c7 = commentRepository.save(new Comment("content", member, post, c3));
         Comment c8 = commentRepository.save(new Comment("content", member, post, null));
-
-        c1.delete();
     }
 
 }

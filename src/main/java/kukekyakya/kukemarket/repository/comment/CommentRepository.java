@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    @Query("select c from Comment c join fetch c.parent where c.id = :id")
+    @Query("select c from Comment c left join fetch c.parent where c.id = :id")
     Optional<Comment> findWithParentById(Long id);
 
     @Query("select c from Comment c join fetch c.member left join fetch c.parent where c.post.id = :postId order by c.parent.id asc nulls first, c.id asc")
