@@ -26,6 +26,12 @@ public class PostService {
     private final CategoryRepository categoryRepository;
     private final FileService fileService;
 
+    public PostListDto readAll(PostReadCondition cond) {
+        return PostListDto.toDto(
+                postRepository.findAllByCondition(cond)
+        );
+    }
+
     @Transactional
     public PostCreateResponse create(PostCreateRequest req) {
         Post post = postRepository.save(

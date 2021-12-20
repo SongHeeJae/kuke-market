@@ -39,3 +39,5 @@ out/
 application-secret.yml
 
 /src/test/resources/static/*
+
+test-location

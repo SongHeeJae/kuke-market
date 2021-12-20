@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import kukekyakya.kukemarket.aop.AssignMemberId;
 import kukekyakya.kukemarket.dto.post.PostCreateRequest;
+import kukekyakya.kukemarket.dto.post.PostReadCondition;
 import kukekyakya.kukemarket.dto.post.PostUpdateRequest;
 import kukekyakya.kukemarket.dto.response.Response;
 import kukekyakya.kukemarket.service.post.PostService;
@@ -21,6 +22,13 @@ import javax.validation.Valid;
 @Slf4j
 public class PostController {
     private final PostService postService;
+
+    @ApiOperation(value = "게시글 목록 조회", notes = "게시글 목록을 조회한다.")
+    @GetMapping("/api/posts")
+    @ResponseStatus(HttpStatus.OK)
+    public Response readAll(@Valid PostReadCondition cond) {
+        return Response.success(postService.readAll(cond));
+    }
 
     @ApiOperation(value = "게시글 생성", notes = "게시글을 생성한다.")
     @PostMapping("/api/posts")
