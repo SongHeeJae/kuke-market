@@ -11,25 +11,18 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class CommentGuard {
-    private final AuthHelper authHelper;
+public class CommentGuard implements Guard {
     private final CommentRepository commentRepository;
 
-    public boolean check(Long id) {
-        return authHelper.isAuthenticated() && hasAuthority(id);
-    }
-
-    private boolean hasAuthority(Long id) {
-        return hasAdminRole() || isResourceOwner(id);
-    }
-
-    private boolean isResourceOwner(Long id) {
+    @Override
+    public boolean isResourceOwner(Long id) {
         Comment comment = commentRepository.findById(id).orElseThrow(() -> { throw new AccessDeniedException(""); });
-        Long memberId = authHelper.extractMemberId();
+        Long memberId = AuthHelper.extractMemberId();
         return comment.getMember().getId().equals(memberId);
     }
 
-    private boolean hasAdminRole() {
-        return authHelper.extractMemberRoles().contains(RoleType.ROLE_ADMIN);
+    @Override
+    public boolean hasRole() {
+        return hasRole(RoleType.ROLE_ADMIN);
     }
 }
