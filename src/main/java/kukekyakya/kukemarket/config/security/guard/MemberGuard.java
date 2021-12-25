@@ -1,19 +1,21 @@
 package kukekyakya.kukemarket.config.security.guard;
 
 import kukekyakya.kukemarket.entity.member.RoleType;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
-@Slf4j
+@RequiredArgsConstructor
 public class MemberGuard implements Guard {
-    @Override
-    public boolean isResourceOwner(Long id) {
-        return id.equals(AuthHelper.extractMemberId());
-    }
+    private final GuardChecker guardChecker;
 
     @Override
-    public boolean hasRole() {
-        return hasRole(RoleType.ROLE_ADMIN);
+    public boolean check(Long id) {
+        return guardChecker.check(
+                List.of(RoleType.ROLE_ADMIN),
+                () -> id.equals(AuthHelper.extractMemberId())
+        );
     }
 }

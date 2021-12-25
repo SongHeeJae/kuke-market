@@ -29,6 +29,7 @@ public class Comment extends EntityDate {
     @Lob
     private String content;
 
+    @Column(nullable = false)
     private boolean deleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
