@@ -3,12 +3,15 @@ package kukekyakya.kukemarket.config.security.guard;
 import kukekyakya.kukemarket.config.security.CustomAuthenticationToken;
 import kukekyakya.kukemarket.config.security.CustomUserDetails;
 import kukekyakya.kukemarket.entity.member.RoleType;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AuthHelper {
 
     public static boolean isAuthenticated() {

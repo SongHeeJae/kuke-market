@@ -11,19 +11,19 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class PostGuard implements Guard {
-    private final GuardChecker guardChecker;
+public class PostGuard extends Guard {
     private final PostRepository postRepository;
+    private List<RoleType> roleTypes = List.of(RoleType.ROLE_ADMIN);
 
     @Override
-    public boolean check(Long id) {
-        return guardChecker.check(
-                List.of(RoleType.ROLE_ADMIN),
-                () -> {
-                    Post post = postRepository.findById(id).orElseThrow(() -> { throw new AccessDeniedException(""); });
-                    Long memberId = AuthHelper.extractMemberId();
-                    return post.getMember().getId().equals(memberId);
-                }
-        );
+    protected List<RoleType> getRoleTypes() {
+        return roleTypes;
+    }
+
+    @Override
+    protected boolean isResourceOwner(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> { throw new AccessDeniedException(""); });
+        Long memberId = AuthHelper.extractMemberId();
+        return post.getMember().getId().equals(memberId);
     }
 }

@@ -8,14 +8,16 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class MemberGuard implements Guard {
-    private final GuardChecker guardChecker;
+public class MemberGuard extends Guard {
+    private List<RoleType> roleTypes = List.of(RoleType.ROLE_ADMIN);
 
     @Override
-    public boolean check(Long id) {
-        return guardChecker.check(
-                List.of(RoleType.ROLE_ADMIN),
-                () -> id.equals(AuthHelper.extractMemberId())
-        );
+    protected List<RoleType> getRoleTypes() {
+        return roleTypes;
+    }
+
+    @Override
+    protected boolean isResourceOwner(Long id) {
+        return id.equals(AuthHelper.extractMemberId());
     }
 }
