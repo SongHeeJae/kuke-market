@@ -4,9 +4,12 @@ import kukekyakya.kukemarket.entity.category.Category;
 import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.entity.member.Role;
 import kukekyakya.kukemarket.entity.member.RoleType;
+import kukekyakya.kukemarket.entity.message.Message;
+import kukekyakya.kukemarket.exception.MemberNotFoundException;
 import kukekyakya.kukemarket.exception.RoleNotFoundException;
 import kukekyakya.kukemarket.repository.category.CategoryRepository;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
+import kukekyakya.kukemarket.repository.message.MessageRepository;
 import kukekyakya.kukemarket.repository.role.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 public class TestInitDB {
@@ -23,6 +27,7 @@ public class TestInitDB {
     @Autowired PasswordEncoder passwordEncoder;
 
     @Autowired CategoryRepository categoryRepository;
+    @Autowired MessageRepository messageRepository;
 
     private String adminEmail = "admin@admin.com";
     private String member1Email = "member1@member.com";
@@ -35,6 +40,7 @@ public class TestInitDB {
         initTestAdmin();
         initTestMember();
         initCategory();
+        initMessage();
     }
 
     private void initRole() {
@@ -67,6 +73,11 @@ public class TestInitDB {
         categoryRepository.saveAll(List.of(category1, category2));
     }
 
+    private void initMessage() {
+        Member sender = memberRepository.findByEmail(getMember1Email()).orElseThrow(MemberNotFoundException::new);
+        Member receiver = memberRepository.findByEmail(getMember2Email()).orElseThrow(MemberNotFoundException::new);
+        IntStream.range(0, 5).forEach(i -> messageRepository.save(new Message("content" + i, sender, receiver)));
+    }
 
     public String getAdminEmail() {
         return adminEmail;

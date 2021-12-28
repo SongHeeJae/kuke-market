@@ -10,7 +10,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
+import javax.validation.constraints.Positive;
 
 @ApiModel(value = "쪽지 생성 요청")
 @Data
@@ -23,15 +25,17 @@ public class MessageCreateRequest {
 
     @ApiModelProperty(hidden = true)
     @Null
-    private Long senderId;
+    private Long memberId;
 
     @ApiModelProperty(value = "수신자 아이디", notes = "수신자 아이디를 입력해주세요", example = "7")
+    @NotNull(message = "수신자 아이디를 입력해주세요.")
+    @Positive(message = "올바른 수신자 아이디를 입력해주세요.")
     private Long receiverId;
 
     public static Message toEntity(MessageCreateRequest req, MemberRepository memberRepository) {
         return new Message(
                 req.content,
-                memberRepository.findById(req.senderId).orElseThrow(MemberNotFoundException::new),
+                memberRepository.findById(req.memberId).orElseThrow(MemberNotFoundException::new),
                 memberRepository.findById(req.receiverId).orElseThrow(MemberNotFoundException::new)
         );
     }
