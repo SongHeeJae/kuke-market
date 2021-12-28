@@ -5,6 +5,8 @@ import kukekyakya.kukemarket.entity.member.Member;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -28,10 +30,12 @@ public class Message extends EntityDate {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Member sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Member receiver;
 
     public Message(String content, Member sender, Member receiver) {
@@ -41,4 +45,15 @@ public class Message extends EntityDate {
         this.deletedBySender = this.deletedByReceiver = false;
     }
 
+    public void deleteBySender() {
+        this.deletedBySender = true;
+    }
+
+    public void deleteByReceiver() {
+        this.deletedByReceiver = true;
+    }
+
+    public boolean isDeletable() {
+        return isDeletedBySender() && isDeletedByReceiver();
+    }
 }
