@@ -131,7 +131,7 @@ class MessageServiceTest {
         // given
         Long id = 1L;
         Message message = createMessage();
-        given(messageRepository.findWithSenderAndReceiverById(id)).willReturn(Optional.of(message));
+        given(messageRepository.findById(id)).willReturn(Optional.of(message));
 
         // when
         messageService.deleteBySender(id);
@@ -147,7 +147,7 @@ class MessageServiceTest {
         Long id = 1L;
         Message message = createMessage();
         message.deleteByReceiver();
-        given(messageRepository.findWithSenderAndReceiverById(id)).willReturn(Optional.of(message));
+        given(messageRepository.findById(id)).willReturn(Optional.of(message));
 
         // when
         messageService.deleteBySender(id);
@@ -161,7 +161,7 @@ class MessageServiceTest {
     void deleteBySenderExceptionByMessageNotFoundTest() {
         // given
         Long id = 1L;
-        given(messageRepository.findWithSenderAndReceiverById(id)).willReturn(Optional.empty());
+        given(messageRepository.findById(id)).willReturn(Optional.empty());
 
         // when, then
         assertThatThrownBy(() -> messageService.deleteBySender(id)).isInstanceOf(MessageNotFoundException.class);
@@ -172,7 +172,7 @@ class MessageServiceTest {
         // given
         Long id = 1L;
         Message message = createMessage();
-        given(messageRepository.findWithSenderAndReceiverById(id)).willReturn(Optional.of(message));
+        given(messageRepository.findById(id)).willReturn(Optional.of(message));
 
         // when
         messageService.deleteByReceiver(id);
@@ -188,7 +188,7 @@ class MessageServiceTest {
         Long id = 1L;
         Message message = createMessage();
         message.deleteBySender();
-        given(messageRepository.findWithSenderAndReceiverById(id)).willReturn(Optional.of(message));
+        given(messageRepository.findById(id)).willReturn(Optional.of(message));
 
         // when
         messageService.deleteByReceiver(id);
@@ -202,7 +202,7 @@ class MessageServiceTest {
     void deleteByReceiverExceptionByMessageNotFoundTest() {
         // given
         Long id = 1L;
-        given(messageRepository.findWithSenderAndReceiverById(id)).willReturn(Optional.empty());
+        given(messageRepository.findById(id)).willReturn(Optional.empty());
 
         // when, then
         assertThatThrownBy(() -> messageService.deleteByReceiver(id)).isInstanceOf(MessageNotFoundException.class);

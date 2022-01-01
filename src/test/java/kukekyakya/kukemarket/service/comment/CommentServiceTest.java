@@ -1,6 +1,7 @@
 package kukekyakya.kukemarket.service.comment;
 
 import kukekyakya.kukemarket.dto.comment.CommentDto;
+import kukekyakya.kukemarket.event.comment.CommentCreatedEvent;
 import kukekyakya.kukemarket.exception.CommentNotFoundException;
 import kukekyakya.kukemarket.exception.MemberNotFoundException;
 import kukekyakya.kukemarket.exception.PostNotFoundException;
@@ -9,9 +10,11 @@ import kukekyakya.kukemarket.repository.member.MemberRepository;
 import kukekyakya.kukemarket.repository.post.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,15 +39,14 @@ class CommentServiceTest {
     @Mock CommentRepository commentRepository;
     @Mock MemberRepository memberRepository;
     @Mock PostRepository postRepository;
+    @Mock ApplicationEventPublisher publisher;
 
     @Test
     void readAllTest() {
         // given
         given(commentRepository.findAllWithMemberAndParentByPostIdOrderByParentIdAscNullsFirstCommentIdAsc(anyLong()))
                 .willReturn(
-                        List.of(createComment(null),
-                                createComment(null)
-                        )
+                        List.of(createComment(null), createComment(null))
                 );
 
         // when
@@ -76,14 +78,21 @@ class CommentServiceTest {
     @Test
     void createTest() {
         // given
+        ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
+
         given(memberRepository.findById(anyLong())).willReturn(Optional.of(createMember()));
         given(postRepository.findById(anyLong())).willReturn(Optional.of(createPost()));
+        given(commentRepository.save(any())).willReturn(createComment(null));
 
         // when
         commentService.create(createCommentCreateRequest());
 
         // then
         verify(commentRepository).save(any());
+        verify(publisher).publishEvent(eventCaptor.capture());
+
+        Object event = eventCaptor.getValue();
+        assertThat(event).isInstanceOf(CommentCreatedEvent.class);
     }
 
     @Test
@@ -118,5 +127,4 @@ class CommentServiceTest {
         assertThatThrownBy(() -> commentService.create(createCommentCreateRequestWithParentId(1L)))
                 .isInstanceOf(CommentNotFoundException.class);
     }
-
 }

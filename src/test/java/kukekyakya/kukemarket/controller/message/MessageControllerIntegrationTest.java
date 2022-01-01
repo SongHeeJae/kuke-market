@@ -2,7 +2,6 @@ package kukekyakya.kukemarket.controller.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kukekyakya.kukemarket.dto.message.MessageCreateRequest;
-import kukekyakya.kukemarket.dto.message.MessageReadCondition;
 import kukekyakya.kukemarket.dto.sign.SignInResponse;
 import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.exception.MemberNotFoundException;
@@ -24,8 +23,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static kukekyakya.kukemarket.factory.dto.MessageCreateRequestFactory.createMessageCreateRequest;
 import static kukekyakya.kukemarket.factory.dto.SignInRequestFactory.createSignInRequest;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
