@@ -1,14 +1,17 @@
 package kukekyakya.kukemarket.entity.comment;
 
+import kukekyakya.kukemarket.dto.member.MemberDto;
 import kukekyakya.kukemarket.entity.common.EntityDate;
 import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.entity.post.Post;
+import kukekyakya.kukemarket.event.comment.CommentCreatedEvent;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.context.ApplicationEventPublisher;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -64,6 +67,17 @@ public class Comment extends EntityDate {
 
     public void delete() {
         this.deleted = true;
+    }
+
+    public void publishCreatedEvent(ApplicationEventPublisher publisher) {
+        publisher.publishEvent(
+                new CommentCreatedEvent(
+                        MemberDto.toDto(getMember()),
+                        MemberDto.toDto(getPost().getMember()),
+                        Optional.ofNullable(getParent()).map(p -> p.getMember()).map(m -> MemberDto.toDto(m)).orElseGet(() -> MemberDto.empty()),
+                        getContent()
+                )
+        );
     }
 
     private Comment findDeletableCommentByParent() {
