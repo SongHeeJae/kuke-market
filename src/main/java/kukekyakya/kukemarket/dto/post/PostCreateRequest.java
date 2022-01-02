@@ -29,16 +29,16 @@ import static java.util.stream.Collectors.toList;
 public class PostCreateRequest {
 
     @ApiModelProperty(value = "게시글 제목", notes = "게시글 제목을 입력해주세요", required = true, example = "my title")
-    @NotBlank(message = "게시글 제목을 입력해주세요.")
+    @NotBlank(message = "{postCreateRequest.title.notBlank}")
     private String title;
 
     @ApiModelProperty(value = "게시글 본문", notes = "게시글 본문을 입력해주세요", required = true, example = "my content")
-    @NotBlank(message = "게시글 본문을 입력해주세요.")
+    @NotBlank(message = "{postCreateRequest.content.notBlank}")
     private String content;
 
     @ApiModelProperty(value = "가격", notes = "가격을 입력해주세요", required = true, example = "50000")
-    @NotNull(message = "가격을 입력해주세요.")
-    @PositiveOrZero(message = "0원 이상을 입력해주세요")
+    @NotNull(message = "{postCreateRequest.price.notNull")
+    @PositiveOrZero(message = "{postCreateRequest.price.positiveOrZero}")
     private Long price;
 
     @ApiModelProperty(hidden = true)
@@ -46,8 +46,8 @@ public class PostCreateRequest {
     private Long memberId;
 
     @ApiModelProperty(value = "카테고리 아이디", notes = "카테고리 아이디를 입력해주세요", required = true, example = "3")
-    @NotNull(message = "카테고리 아이디를 입력해주세요.")
-    @PositiveOrZero(message = "올바른 카테고리 아이디를 입력해주세요.")
+    @NotNull(message = "{postCreateRequest.categoryId.notNull}")
+    @PositiveOrZero(message = "{postCreateRequest.categoryId.positiveOrZero}")
     private Long categoryId;
 
     @ApiModelProperty(value = "이미지", notes = "이미지를 첨부해주세요.")

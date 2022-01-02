@@ -20,7 +20,7 @@ import javax.validation.constraints.Positive;
 @NoArgsConstructor
 public class MessageCreateRequest {
     @ApiModelProperty(value = "쪽지", notes = "쪽지를 입력해주세요", required = true, example = "my message")
-    @NotBlank(message = "쪽지를 입력해주세요.")
+    @NotBlank(message = "{messageCreateRequest.content.notBlank}")
     private String content;
 
     @ApiModelProperty(hidden = true)
@@ -28,8 +28,8 @@ public class MessageCreateRequest {
     private Long memberId;
 
     @ApiModelProperty(value = "수신자 아이디", notes = "수신자 아이디를 입력해주세요", example = "7")
-    @NotNull(message = "수신자 아이디를 입력해주세요.")
-    @Positive(message = "올바른 수신자 아이디를 입력해주세요.")
+    @NotNull(message = "{messageCreateRequest.receiverId.notNull}")
+    @Positive(message = "{messageCreateRequest.receiverId.positive}")
     private Long receiverId;
 
     public static Message toEntity(MessageCreateRequest req, MemberRepository memberRepository) {
