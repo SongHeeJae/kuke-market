@@ -19,16 +19,16 @@ import java.util.List;
 @AllArgsConstructor
 public class PostUpdateRequest {
     @ApiModelProperty(value = "게시글 제목", notes = "게시글 제목을 입력해주세요", required = true, example = "my title")
-    @NotBlank(message = "게시글 제목을 입력해주세요.")
+    @NotBlank(message = "{postUpdateRequest.title.notBlank}")
     private String title;
 
     @ApiModelProperty(value = "게시글 본문", notes = "게시글 본문을 입력해주세요", required = true, example = "my content")
-    @NotBlank(message = "게시글 본문을 입력해주세요.")
+    @NotBlank(message = "{postUpdateRequest.content.notBlank}")
     private String content;
 
     @ApiModelProperty(value = "가격", notes = "가격을 입력해주세요", required = true, example = "50000")
-    @NotNull(message = "가격을 입력해주세요.")
-    @PositiveOrZero(message = "0원 이상을 입력해주세요")
+    @NotNull(message = "{postUpdateRequest.price.notNull}")
+    @PositiveOrZero(message = "{postUpdateRequest.price.positiveOrZero}")
     private Long price;
 
     @ApiModelProperty(value = "추가된 이미지", notes = "추가된 이미지를 첨부해주세요.")

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -26,13 +27,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MessageControllerAdviceTest {
     @InjectMocks MessageController messageController;
     @Mock MessageService messageService;
-
     MockMvc mockMvc;
     ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void beforeEach() {
-        mockMvc = MockMvcBuilders.standaloneSetup(messageController).setControllerAdvice(new ExceptionAdvice()).build();
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasenames("i18n/exception");
+        mockMvc = MockMvcBuilders.standaloneSetup(messageController).setControllerAdvice(new ExceptionAdvice(messageSource)).build();
     }
 
     @Test

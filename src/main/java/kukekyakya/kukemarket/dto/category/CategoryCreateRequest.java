@@ -20,8 +20,8 @@ import java.util.Optional;
 public class CategoryCreateRequest {
 
     @ApiModelProperty(value = "카테고리 명", notes = "카테고리 명을 입력해주세요", required = true, example = "my category")
-    @NotBlank(message = "카테고리 명을 입력해주세요.")
-    @Size(min = 2, max = 30, message = "카테고리 명의 길이는 2글자에서 30글자 입니다.")
+    @NotBlank(message = "{categoryCreateRequest.name.notBlank}")
+    @Size(min = 2, max = 30, message = "{categoryCreateRequest.name.size}")
     private String name;
 
     @ApiModelProperty(value = "부모 카테고리 아이디", notes = "부모 카테고리 아이디를 입력해주세요", example = "7")
