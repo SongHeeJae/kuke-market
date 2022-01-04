@@ -1,7 +1,6 @@
 package kukekyakya.kukemarket.handler;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Base64;

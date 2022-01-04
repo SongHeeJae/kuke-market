@@ -3,7 +3,6 @@ package kukekyakya.kukemarket.config.token;
 import io.jsonwebtoken.Claims;
 import kukekyakya.kukemarket.handler.JwtHandler;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
