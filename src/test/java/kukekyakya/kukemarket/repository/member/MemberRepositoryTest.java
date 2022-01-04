@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.*;
 import static kukekyakya.kukemarket.factory.entity.MemberFactory.createMember;
 import static kukekyakya.kukemarket.factory.entity.MemberFactory.createMemberWithRoles;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -168,7 +169,7 @@ class MemberRepositoryTest {
     void memberRoleCascadePersistTest() {
         // given
         List<RoleType> roleTypes = List.of(RoleType.ROLE_NORMAL, RoleType.ROLE_SPECIAL_BUYER, RoleType.ROLE_ADMIN);
-        List<Role> roles = roleTypes.stream().map(roleType -> new Role(roleType)).collect(Collectors.toList());
+        List<Role> roles = roleTypes.stream().map(roleType -> new Role(roleType)).collect(toList());
         roleRepository.saveAll(roles);
         clear();
 
@@ -187,7 +188,7 @@ class MemberRepositoryTest {
     void memberRoleCascadeDeleteTest() {
         // given
         List<RoleType> roleTypes = List.of(RoleType.ROLE_NORMAL, RoleType.ROLE_SPECIAL_BUYER, RoleType.ROLE_ADMIN);
-        List<Role> roles = roleTypes.stream().map(roleType -> new Role(roleType)).collect(Collectors.toList());
+        List<Role> roles = roleTypes.stream().map(roleType -> new Role(roleType)).collect(toList());
         roleRepository.saveAll(roles);
         clear();
 
@@ -201,6 +202,24 @@ class MemberRepositoryTest {
         // then
         List<MemberRole> result = em.createQuery("select mr from MemberRole mr", MemberRole.class).getResultList();
         assertThat(result.size()).isZero();
+    }
+
+    @Test
+    void findWithRolesByEmailTest() {
+        // given
+        List<RoleType> roleTypes = List.of(RoleType.ROLE_NORMAL, RoleType.ROLE_SPECIAL_BUYER, RoleType.ROLE_ADMIN);
+        List<Role> roles = roleTypes.stream().map(roleType -> new Role(roleType)).collect(toList());
+        roleRepository.saveAll(roles);
+        Member member = memberRepository.save(createMemberWithRoles(roleRepository.findAll()));
+        clear();
+
+        // when
+        Member foundMember = memberRepository.findWithRolesByEmail(member.getEmail()).orElseThrow(MemberNotFoundException::new);
+
+        // then
+        List<RoleType> result = foundMember.getRoles().stream().map(memberRole -> memberRole.getRole().getRoleType()).collect(toList());
+        assertThat(result.size()).isEqualTo(roleTypes.size());
+        assertThat(result).contains(roleTypes.get(0), roleTypes.get(1), roleTypes.get(2));
     }
 
     private void clear() {

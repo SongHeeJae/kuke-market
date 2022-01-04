@@ -1,7 +1,6 @@
 package kukekyakya.kukemarket.config.security;
 
-import kukekyakya.kukemarket.entity.member.Member;
-import kukekyakya.kukemarket.repository.member.MemberRepository;
+import kukekyakya.kukemarket.config.token.TokenHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -9,7 +8,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -17,18 +15,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final MemberRepository memberRepository;
+    private final TokenHelper accessTokenHelper;
 
     @Override
-    public CustomUserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        Member member = memberRepository.findWithRolesById(Long.valueOf(userId))
-                .orElseGet(() -> new Member(null, null, null, null, List.of()));
+    public CustomUserDetails loadUserByUsername(String token) throws UsernameNotFoundException {
+        return accessTokenHelper.parse(token)
+                .map(this::convert)
+                .orElse(null);
+    }
+
+    private CustomUserDetails convert(TokenHelper.PrivateClaims privateClaims) {
         return new CustomUserDetails(
-                String.valueOf(member.getId()),
-                member.getRoles().stream().map(memberRole -> memberRole.getRole())
-                        .map(role -> role.getRoleType())
-                        .map(roleType -> roleType.toString())
-                        .map(SimpleGrantedAuthority::new).collect(Collectors.toSet())
+                privateClaims.getMemberId(),
+                privateClaims.getRoleTypes().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet())
         );
     }
 }

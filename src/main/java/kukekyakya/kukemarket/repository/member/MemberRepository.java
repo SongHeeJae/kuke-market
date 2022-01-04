@@ -16,5 +16,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     boolean existsByNickname(String nickname);
 
     @EntityGraph("Member.roles")
-    Optional<Member> findWithRolesById(Long id);
+    Optional<Member> findWithRolesByEmail(String email);
 }

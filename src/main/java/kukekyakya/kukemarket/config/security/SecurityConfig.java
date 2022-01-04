@@ -16,8 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-    private final TokenHelper accessTokenHelper;
     private final CustomUserDetailsService userDetailsService;
 
     @Override
@@ -57,7 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                     .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 .and()
-                    .addFilterBefore(new JwtAuthenticationFilter(accessTokenHelper, userDetailsService), UsernamePasswordAuthenticationFilter.class);
+                    .addFilterBefore(new JwtAuthenticationFilter(userDetailsService), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
