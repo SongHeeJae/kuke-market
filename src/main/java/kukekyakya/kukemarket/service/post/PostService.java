@@ -1,8 +1,12 @@
 package kukekyakya.kukemarket.service.post;
 
 import kukekyakya.kukemarket.dto.post.*;
+import kukekyakya.kukemarket.entity.category.Category;
+import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.entity.post.Image;
 import kukekyakya.kukemarket.entity.post.Post;
+import kukekyakya.kukemarket.exception.CategoryNotFoundException;
+import kukekyakya.kukemarket.exception.MemberNotFoundException;
 import kukekyakya.kukemarket.exception.PostNotFoundException;
 import kukekyakya.kukemarket.repository.category.CategoryRepository;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
@@ -15,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,12 +40,12 @@ public class PostService {
 
     @Transactional
     public PostCreateResponse create(PostCreateRequest req) {
+        Member member = memberRepository.findById(req.getMemberId()).orElseThrow(MemberNotFoundException::new);
+        Category category = categoryRepository.findById(req.getCategoryId()).orElseThrow(CategoryNotFoundException::new);
+        List<Image> images = req.getImages().stream().map(i -> new Image(i.getOriginalFilename())).collect(toList());
+
         Post post = postRepository.save(
-                PostCreateRequest.toEntity(
-                        req,
-                        memberRepository,
-                        categoryRepository
-                )
+                new Post(req.getTitle(), req.getContent(), req.getPrice(), member, category, images)
         );
         uploadImages(post.getImages(), req.getImages());
         return new PostCreateResponse(post.getId());

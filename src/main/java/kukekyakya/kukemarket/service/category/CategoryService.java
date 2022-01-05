@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -24,7 +25,10 @@ public class CategoryService {
 
     @Transactional
     public void create(CategoryCreateRequest req) {
-        categoryRepository.save(CategoryCreateRequest.toEntity(req, categoryRepository));
+        Category parent = Optional.ofNullable(req.getParentId())
+                .map(id -> categoryRepository.findById(id).orElseThrow(CategoryNotFoundException::new))
+                .orElse(null);
+        categoryRepository.save(new Category(req.getName(), parent));
     }
 
     @Transactional

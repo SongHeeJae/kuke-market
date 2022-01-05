@@ -2,12 +2,6 @@ package kukekyakya.kukemarket.dto.post;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import kukekyakya.kukemarket.entity.post.Image;
-import kukekyakya.kukemarket.entity.post.Post;
-import kukekyakya.kukemarket.exception.CategoryNotFoundException;
-import kukekyakya.kukemarket.exception.MemberNotFoundException;
-import kukekyakya.kukemarket.repository.category.CategoryRepository;
-import kukekyakya.kukemarket.repository.member.MemberRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,8 +13,6 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 @ApiModel(value = "게시글 생성 요청")
 @Data
@@ -52,15 +44,4 @@ public class PostCreateRequest {
 
     @ApiModelProperty(value = "이미지", notes = "이미지를 첨부해주세요.")
     private List<MultipartFile> images = new ArrayList<>();
-
-    public static Post toEntity(PostCreateRequest req, MemberRepository memberRepository, CategoryRepository categoryRepository) {
-        return new Post(
-                req.title,
-                req.content,
-                req.price,
-                memberRepository.findById(req.getMemberId()).orElseThrow(MemberNotFoundException::new),
-                categoryRepository.findById(req.getCategoryId()).orElseThrow(CategoryNotFoundException::new),
-                req.images.stream().map(i -> new Image(i.getOriginalFilename())).collect(toList())
-        );
-    }
 }

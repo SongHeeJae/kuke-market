@@ -4,7 +4,9 @@ import kukekyakya.kukemarket.dto.message.MessageCreateRequest;
 import kukekyakya.kukemarket.dto.message.MessageDto;
 import kukekyakya.kukemarket.dto.message.MessageListDto;
 import kukekyakya.kukemarket.dto.message.MessageReadCondition;
+import kukekyakya.kukemarket.entity.member.Member;
 import kukekyakya.kukemarket.entity.message.Message;
+import kukekyakya.kukemarket.exception.MemberNotFoundException;
 import kukekyakya.kukemarket.exception.MessageNotFoundException;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
 import kukekyakya.kukemarket.repository.message.MessageRepository;
@@ -42,7 +44,10 @@ public class MessageService {
 
     @Transactional
     public void create(MessageCreateRequest req) {
-        messageRepository.save(MessageCreateRequest.toEntity(req, memberRepository));
+        Member sender = memberRepository.findById(req.getMemberId()).orElseThrow(MemberNotFoundException::new);
+        Member receiver = memberRepository.findById(req.getReceiverId()).orElseThrow(MemberNotFoundException::new);
+        Message message = new Message(req.getContent(), sender, receiver);
+        messageRepository.save(message);
     }
 
     @Transactional
