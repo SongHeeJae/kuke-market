@@ -6,6 +6,7 @@ import kukekyakya.kukemarket.dto.sign.SignInRequest;
 import kukekyakya.kukemarket.dto.sign.SignInResponse;
 import kukekyakya.kukemarket.dto.sign.SignUpRequest;
 import kukekyakya.kukemarket.entity.member.Member;
+import kukekyakya.kukemarket.entity.member.Role;
 import kukekyakya.kukemarket.entity.member.RoleType;
 import kukekyakya.kukemarket.exception.*;
 import kukekyakya.kukemarket.repository.member.MemberRepository;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,10 +32,10 @@ public class SignService {
     @Transactional
     public void signUp(SignUpRequest req) {
         validateSignUpInfo(req);
+        String encodedPassword = passwordEncoder.encode(req.getPassword());
+        List<Role> roles = List.of(roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new));
         memberRepository.save(
-                SignUpRequest.toEntity(req,
-                roleRepository.findByRoleType(RoleType.ROLE_NORMAL).orElseThrow(RoleNotFoundException::new),
-                passwordEncoder)
+                new Member(req.getEmail(), encodedPassword, req.getUsername(), req.getNickname(), roles)
         );
     }
 

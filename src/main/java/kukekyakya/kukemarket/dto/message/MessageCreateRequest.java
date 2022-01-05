@@ -2,9 +2,6 @@ package kukekyakya.kukemarket.dto.message;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import kukekyakya.kukemarket.entity.message.Message;
-import kukekyakya.kukemarket.exception.MemberNotFoundException;
-import kukekyakya.kukemarket.repository.member.MemberRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,12 +28,4 @@ public class MessageCreateRequest {
     @NotNull(message = "{messageCreateRequest.receiverId.notNull}")
     @Positive(message = "{messageCreateRequest.receiverId.positive}")
     private Long receiverId;
-
-    public static Message toEntity(MessageCreateRequest req, MemberRepository memberRepository) {
-        return new Message(
-                req.content,
-                memberRepository.findById(req.memberId).orElseThrow(MemberNotFoundException::new),
-                memberRepository.findById(req.receiverId).orElseThrow(MemberNotFoundException::new)
-        );
-    }
 }
