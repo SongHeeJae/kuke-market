@@ -2,6 +2,7 @@ package kukekyakya.kukemarket.controller.member;
 
 import kukekyakya.kukemarket.advice.ExceptionAdvice;
 import kukekyakya.kukemarket.exception.MemberNotFoundException;
+import kukekyakya.kukemarket.handler.ResponseHandler;
 import kukekyakya.kukemarket.service.member.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,20 +19,20 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 public class MemberControllerAdviceTest {
     @InjectMocks MemberController memberController;
     @Mock MemberService memberService;
+    @Mock ResponseHandler responseHandler;
     MockMvc mockMvc;
 
     @BeforeEach
     void beforeEach() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasenames("i18n/exception");
-        mockMvc = MockMvcBuilders.standaloneSetup(memberController).setControllerAdvice(new ExceptionAdvice(messageSource)).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(memberController).setControllerAdvice(new ExceptionAdvice(responseHandler)).build();
     }
 
     @Test
@@ -42,8 +43,7 @@ public class MemberControllerAdviceTest {
         // when, then
         mockMvc.perform(
                 get("/api/members/{id}", 1L))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(-1007));
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -54,8 +54,6 @@ public class MemberControllerAdviceTest {
         // when, then
         mockMvc.perform(
                 delete("/api/members/{id}", 1L))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(-1007));
+                .andExpect(status().isNotFound());
     }
-
 }

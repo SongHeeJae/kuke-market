@@ -5,6 +5,7 @@ import kukekyakya.kukemarket.advice.ExceptionAdvice;
 import kukekyakya.kukemarket.dto.sign.SignInRequest;
 import kukekyakya.kukemarket.dto.sign.SignUpRequest;
 import kukekyakya.kukemarket.exception.*;
+import kukekyakya.kukemarket.handler.ResponseHandler;
 import kukekyakya.kukemarket.service.sign.SignService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -24,21 +24,19 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class SignControllerAdviceTest {
     @InjectMocks SignController signController;
     @Mock SignService signService;
+    @Mock ResponseHandler responseHandler;
     MockMvc mockMvc;
     ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void beforeEach() {
-        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasenames("i18n/exception");
-        mockMvc = MockMvcBuilders.standaloneSetup(signController).setControllerAdvice(new ExceptionAdvice(messageSource)).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(signController).setControllerAdvice(new ExceptionAdvice(responseHandler)).build();
     }
 
     @Test
@@ -52,8 +50,7 @@ class SignControllerAdviceTest {
                 post("/api/sign-in")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value(-1004));;
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -66,8 +63,7 @@ class SignControllerAdviceTest {
                 post("/api/sign-in")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value(-1003));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -81,8 +77,7 @@ class SignControllerAdviceTest {
                 post("/api/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value(-1005));
+                .andExpect(status().isConflict());
     }
 
     @Test
@@ -95,8 +90,7 @@ class SignControllerAdviceTest {
         mockMvc.perform(
                 post("/api/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(jsonPath("$.code").value(-1006));
+                        .content(objectMapper.writeValueAsString(req)));
     }
 
     @Test
@@ -110,8 +104,7 @@ class SignControllerAdviceTest {
                 post("/api/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(-1008));
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -124,21 +117,19 @@ class SignControllerAdviceTest {
                 post("/api/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value(-1003));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     void refreshTokenAuthenticationEntryPointException() throws Exception {
         // given
-        given(signService.refreshToken(anyString())).willThrow(AuthenticationEntryPointException.class);
+        given(signService.refreshToken(anyString())).willThrow(RefreshTokenFailureException.class);
 
         // when, then
         mockMvc.perform(
                 post("/api/refresh-token")
                         .header("Authorization", "refreshToken"))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value(-1001));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -146,8 +137,6 @@ class SignControllerAdviceTest {
         // given, when, then
         mockMvc.perform(
                 post("/api/refresh-token"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value(-1009));
+                .andExpect(status().isBadRequest());
     }
 }
-
