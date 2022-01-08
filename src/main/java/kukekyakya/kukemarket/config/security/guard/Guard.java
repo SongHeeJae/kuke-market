@@ -6,7 +6,7 @@ import java.util.List;
 
 public abstract class Guard {
     public final boolean check(Long id) {
-        return AuthHelper.isAuthenticated() && (hasRole(getRoleTypes()) || isResourceOwner(id));
+        return hasRole(getRoleTypes()) || isResourceOwner(id);
     }
 
     abstract protected List<RoleType> getRoleTypes();

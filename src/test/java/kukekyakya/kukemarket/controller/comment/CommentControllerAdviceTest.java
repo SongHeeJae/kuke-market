@@ -6,6 +6,7 @@ import kukekyakya.kukemarket.dto.comment.CommentCreateRequest;
 import kukekyakya.kukemarket.exception.CommentNotFoundException;
 import kukekyakya.kukemarket.exception.MemberNotFoundException;
 import kukekyakya.kukemarket.exception.PostNotFoundException;
+import kukekyakya.kukemarket.handler.ResponseHandler;
 import kukekyakya.kukemarket.service.comment.CommentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -24,21 +24,19 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class CommentControllerAdviceTest {
     @InjectMocks CommentController commentController;
     @Mock CommentService commentService;
+    @Mock ResponseHandler responseHandler;
     MockMvc mockMvc;
     ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void beforeEach() {
-        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasenames("i18n/exception");
-        mockMvc = MockMvcBuilders.standaloneSetup(commentController).setControllerAdvice(new ExceptionAdvice(messageSource)).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(commentController).setControllerAdvice(new ExceptionAdvice(responseHandler)).build();
     }
 
     @Test
@@ -52,8 +50,7 @@ class CommentControllerAdviceTest {
                 post("/api/comments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(-1007));
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -67,8 +64,7 @@ class CommentControllerAdviceTest {
                 post("/api/comments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(-1012));
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -82,8 +78,7 @@ class CommentControllerAdviceTest {
                 post("/api/comments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(-1015));
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -95,7 +90,6 @@ class CommentControllerAdviceTest {
         // when, then
         mockMvc.perform(
                 delete("/api/comments/{id}", id))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value(-1015));
+                .andExpect(status().isNotFound());
     }
 }

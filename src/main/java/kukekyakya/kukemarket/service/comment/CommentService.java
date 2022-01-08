@@ -15,6 +15,7 @@ import kukekyakya.kukemarket.repository.post.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +51,7 @@ public class CommentService {
     }
 
     @Transactional
+    @PreAuthorize("@commentGuard.check(#id)")
     public void delete(Long id) {
         Comment comment = commentRepository.findWithParentById(id).orElseThrow(CommentNotFoundException::new);
         comment.findDeletableComment().ifPresentOrElse(commentRepository::delete, comment::delete);

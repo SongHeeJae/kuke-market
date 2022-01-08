@@ -21,7 +21,6 @@ import static kukekyakya.kukemarket.factory.dto.SignInRequestFactory.createSignI
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -85,8 +84,7 @@ class MemberControllerIntegrationTest {
         // when, then
         mockMvc.perform(
                 delete("/api/members/{id}", member.getId()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/exception/entry-point"));
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -98,8 +96,7 @@ class MemberControllerIntegrationTest {
         // when, then
         mockMvc.perform(
                 delete("/api/members/{id}", member.getId()).header("Authorization", attackerSignInRes.getAccessToken()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/exception/access-denied"));
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -111,8 +108,7 @@ class MemberControllerIntegrationTest {
         // when, then
         mockMvc.perform(
                 delete("/api/members/{id}", member.getId()).header("Authorization", signInRes.getRefreshToken()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/exception/entry-point"));
+                .andExpect(status().isUnauthorized());
     }
 
 }
